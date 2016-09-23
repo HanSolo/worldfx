@@ -19,6 +19,7 @@ package eu.hansolo.fx.world;
 import javafx.beans.DefaultProperty;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
+import javafx.geometry.Point2D;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.geometry.Insets;
@@ -30,6 +31,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 
 import java.util.Locale;
@@ -42,19 +44,22 @@ import java.util.Locale;
  */
 @DefaultProperty("children")
 public class World extends Region {
-
+    private static final double                   EARTH_RADIUS     = 6_371_000;
     private static final double                   PREFERRED_WIDTH  = 1009;
     private static final double                   PREFERRED_HEIGHT = 665;
     private static final double                   MINIMUM_WIDTH    = 100;
     private static final double                   MINIMUM_HEIGHT   = 66;
     private static final double                   MAXIMUM_WIDTH    = 2018;
     private static final double                   MAXIMUM_HEIGHT   = 1330;
-    private static final Color                    FILL_COLOR       = Color.GREY;
+    private static final Color                    FILL_COLOR       = Color.web("d9d9dc");
     private static final Color                    STROKE_COLOR     = Color.BLACK;
+    private static final Color                    HOVER_COLOR      = Color.web("#456acf");
+    private static final Color                    SELECTION_COLOR  = Color.web("#ef6050");
     private static final double                   ASPECT_RATIO = PREFERRED_HEIGHT / PREFERRED_WIDTH;
     private              double                   width;
     private              double                   height;
     private              Pane                     pane;
+    private              Pane                     poiPane;
     private              ScalableContentPane      scalableContentPane;
     private              EventHandler<MouseEvent> mouseEnterHandler;
     private              EventHandler<MouseEvent> mousePressHandler;
@@ -67,18 +72,23 @@ public class World extends Region {
         getStylesheets().add(World.class.getResource("world.css").toExternalForm());
         mouseEnterHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(Color.RED); }
+            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(HOVER_COLOR); }
         };
         mousePressHandler = evt -> {
-            CountryPath countryPath = (CountryPath) evt.getSource();
-            Locale      locale      = new Locale("", countryPath.NAME);
-            System.out.println(Country.valueOf(countryPath.NAME).value);
-            System.out.println(locale.getDisplayCountry());
-            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(Color.LIME); }
+            if (evt.getClickCount() == 2) {
+                // DoubleClick -> Zoom in at that area
+                System.out.println("Double Click");
+            } else {
+                CountryPath countryPath = (CountryPath) evt.getSource();
+                Locale      locale      = new Locale("", countryPath.NAME);
+                System.out.println(Country.valueOf(countryPath.NAME).value);
+                System.out.println(locale.getDisplayCountry());
+                for (SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(SELECTION_COLOR); }
+            }
         };
         mouseReleaseHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(Color.RED); }
+            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(HOVER_COLOR); }
         };
         mouseExitHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
@@ -118,12 +128,16 @@ public class World extends Region {
         }
         pane.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 
+        poiPane = new Pane();
+        poiPane.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+        poiPane.setMouseTransparent(true);
+
         scalableContentPane = new ScalableContentPane();
         scalableContentPane.setContent(pane);
 
-        getChildren().setAll(scalableContentPane);
+        getChildren().setAll(scalableContentPane, poiPane);
 
-        setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
+        setBackground(new Background(new BackgroundFill(Color.web("#3f3f4f"), CornerRadii.EMPTY, Insets.EMPTY)));
     }
 
     private void registerListeners() {
@@ -144,6 +158,7 @@ public class World extends Region {
 
     private void setFillAndStroke(final CountryPath PATH, final Color FILL, final Color STROKE) {
         PATH.setFill(FILL);
+        PATH.setStrokeWidth(0.5);
         PATH.setStroke(STROKE);
     }
 
@@ -166,6 +181,10 @@ public class World extends Region {
             scalableContentPane.setMaxSize(width, height);
             scalableContentPane.setPrefSize(width, height);
             scalableContentPane.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
+
+            poiPane.setMaxSize(width, height);
+            poiPane.setPrefSize(width, height);
+            poiPane.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
 
             pane.setCache(false);
         }
