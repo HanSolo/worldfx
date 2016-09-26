@@ -72,7 +72,7 @@ public class World extends Region {
         getStylesheets().add(World.class.getResource("world.css").toExternalForm());
         mouseEnterHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(HOVER_COLOR); }
+            for(SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(HOVER_COLOR); }
         };
         mousePressHandler = evt -> {
             if (evt.getClickCount() == 2) {
@@ -80,19 +80,19 @@ public class World extends Region {
                 System.out.println("Double Click");
             } else {
                 CountryPath countryPath = (CountryPath) evt.getSource();
-                Locale      locale      = new Locale("", countryPath.NAME);
-                System.out.println(Country.valueOf(countryPath.NAME).value);
-                System.out.println(locale.getDisplayCountry());
-                for (SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(SELECTION_COLOR); }
+                Locale      locale      = countryPath.getLocale();
+                System.out.println(Country.valueOf(countryPath.getName()).value);
+                System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
+                for (SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(SELECTION_COLOR); }
             }
         };
         mouseReleaseHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(HOVER_COLOR); }
+            for(SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(HOVER_COLOR); }
         };
         mouseExitHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.NAME).PATHS) { path.setFill(FILL_COLOR); }
+            for(SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(FILL_COLOR); }
         };
         initGraphics();
         registerListeners();

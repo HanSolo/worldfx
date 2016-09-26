@@ -51,26 +51,22 @@ import javafx.scene.transform.Scale;
 
 
 public class ScalableContentPane extends Region {
-    public enum ScaleBehavior {
-        ALWAYS,
-        IF_NECESSARY
-    }
-    private final Property<Pane> contentPaneProperty
-                                                    = new SimpleObjectProperty<>();
-    private final DoubleProperty minScaleXProperty  = new SimpleDoubleProperty(Double.MIN_VALUE);
-    private final DoubleProperty maxScaleXProperty  = new SimpleDoubleProperty(Double.MAX_VALUE);
-    private final DoubleProperty minScaleYProperty  = new SimpleDoubleProperty(Double.MIN_VALUE);
-    private final DoubleProperty maxScaleYProperty  = new SimpleDoubleProperty(Double.MAX_VALUE);
-    private final BooleanProperty fitToWidthProperty  = new SimpleBooleanProperty(true);
-    private final BooleanProperty fitToHeightProperty = new SimpleBooleanProperty(true);
-    private final ObjectProperty<ScaleBehavior> scaleBehavior
-        = new SimpleObjectProperty<>(ScaleBehavior.ALWAYS);
-    private Scale contentScaleTransform;
-    private       double         contentScaleWidth  = 1.0;
-    private       double         contentScaleHeight = 1.0;
-    private       boolean        aspectScale        = true;
-    private       boolean        autoRescale        = true;
-    private boolean manualReset;
+    public enum ScaleBehavior { ALWAYS, IF_NECESSARY}
+    private final Property<Pane>                contentPaneProperty   = new SimpleObjectProperty<>();
+    private final DoubleProperty                minScaleXProperty     = new SimpleDoubleProperty(Double.MIN_VALUE);
+    private final DoubleProperty                maxScaleXProperty     = new SimpleDoubleProperty(Double.MAX_VALUE);
+    private final DoubleProperty                minScaleYProperty     = new SimpleDoubleProperty(Double.MIN_VALUE);
+    private final DoubleProperty                maxScaleYProperty     = new SimpleDoubleProperty(Double.MAX_VALUE);
+    private final BooleanProperty               fitToWidthProperty    = new SimpleBooleanProperty(true);
+    private final BooleanProperty               fitToHeightProperty   = new SimpleBooleanProperty(true);
+    private final ObjectProperty<ScaleBehavior> scaleBehavior         = new SimpleObjectProperty<>(ScaleBehavior.ALWAYS);
+    private       double                        contentScaleWidth     = 1.0;
+    private       double                        contentScaleHeight    = 1.0;
+    private       boolean                       aspectScale           = true;
+    private       boolean                       autoRescale           = true;
+    private       boolean                       manualReset;
+    private       Scale                         contentScaleTransform;
+
 
     /**
      * Constructor.
@@ -159,8 +155,7 @@ public class ScalableContentPane extends Region {
         return contentScaleTransform;
     }
 
-    @Override
-    protected void layoutChildren() {
+    @Override protected void layoutChildren() {
         super.layoutChildren();
     }
 
@@ -276,9 +271,7 @@ public class ScalableContentPane extends Region {
         }
     }
 
-    @Override
-    protected double computeMinWidth(double d) {
-
+    @Override protected double computeMinWidth(double d) {
         double result = getInsets().getLeft() + getInsets().getRight();
 
         // apply content width (including scale)
@@ -286,10 +279,7 @@ public class ScalableContentPane extends Region {
 
         return result;
     }
-
-    @Override
-    protected double computeMinHeight(double d) {
-
+    @Override protected double computeMinHeight(double d) {
         double result = getInsets().getTop() + getInsets().getBottom();
 
         // apply content width (including scale)
@@ -297,10 +287,7 @@ public class ScalableContentPane extends Region {
 
         return result;
     }
-
-    @Override
-    protected double computePrefWidth(double d) {
-
+    @Override protected double computePrefWidth(double d) {
         double result = getInsets().getLeft() + getInsets().getRight();
 
         // apply content width (including scale)
@@ -308,10 +295,7 @@ public class ScalableContentPane extends Region {
 
         return result;
     }
-
-    @Override
-    protected double computePrefHeight(double d) {
-
+    @Override protected double computePrefHeight(double d) {
         double result = getInsets().getTop() + getInsets().getBottom();
 
         // apply content width (including scale)
@@ -407,21 +391,6 @@ public class ScalableContentPane extends Region {
         this.autoRescale = autoRescale;
     }
 
-    public DoubleProperty minScaleXProperty() {
-        return minScaleXProperty;
-    }
-
-    public DoubleProperty minScaleYProperty() {
-        return minScaleYProperty;
-    }
-
-    public DoubleProperty maxScaleXProperty() {
-        return maxScaleXProperty;
-    }
-
-    public DoubleProperty maxScaleYProperty() {
-        return maxScaleYProperty;
-    }
 
     public double getMinScaleX() {
         return minScaleXProperty().get();
@@ -429,24 +398,40 @@ public class ScalableContentPane extends Region {
     public void setMinScaleX(double s) {
         minScaleXProperty().set(s);
     }
+    public DoubleProperty minScaleXProperty() {
+        return minScaleXProperty;
+    }
+
     public double getMaxScaleX() {
         return maxScaleXProperty().get();
     }
     public void setMaxScaleX(double s) {
         maxScaleXProperty().set(s);
     }
+    public DoubleProperty maxScaleXProperty() {
+        return maxScaleXProperty;
+    }
+
     public double getMinScaleY() {
         return minScaleYProperty().get();
     }
     public void setMinScaleY(double s) {
         minScaleYProperty().set(s);
     }
+    public DoubleProperty minScaleYProperty() {
+        return minScaleYProperty;
+    }
+
     public double getMaxScaleY() {
         return maxScaleYProperty().get();
     }
     public void setMaxScaleY(double s) {
         maxScaleYProperty().set(s);
     }
+    public DoubleProperty maxScaleYProperty() {
+        return maxScaleYProperty;
+    }
+
     public boolean isFitToWidth() {
         return fitToWidthProperty().get();
     }
@@ -456,22 +441,24 @@ public class ScalableContentPane extends Region {
     public final BooleanProperty fitToWidthProperty() {
         return fitToWidthProperty;
     }
-    public final BooleanProperty fitToHeightProperty() {
-        return fitToHeightProperty;
-    }
+
     public boolean isFitToHeight() {
         return fitToHeightProperty().get();
     }
     public void setFitToHeight(boolean value) {
         fitToHeightProperty().set(value);
     }
-    public final ObjectProperty<ScaleBehavior> scaleBehaviorProperty() {
-        return scaleBehavior;
+    public final BooleanProperty fitToHeightProperty() {
+        return fitToHeightProperty;
     }
+
     public ScaleBehavior getScaleBehavior() {
         return scaleBehaviorProperty().get();
     }
     public void setScaleBehavior(ScaleBehavior behavior) {
         scaleBehaviorProperty().set(behavior);
+    }
+    public final ObjectProperty<ScaleBehavior> scaleBehaviorProperty() {
+        return scaleBehavior;
     }
 }
