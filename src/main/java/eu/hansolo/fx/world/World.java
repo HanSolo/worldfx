@@ -34,7 +34,11 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 
 /**
@@ -59,7 +63,7 @@ public class World extends Region {
     private              double                   width;
     private              double                   height;
     private              Pane                     pane;
-    private              Pane                     poiPane;
+    private              Map<String, List<CountryPath>> countryPaths;
     private              ScalableContentPane      scalableContentPane;
     private              EventHandler<MouseEvent> mouseEnterHandler;
     private              EventHandler<MouseEvent> mousePressHandler;
@@ -70,6 +74,7 @@ public class World extends Region {
     // ******************** Constructors **************************************
     public World() {
         getStylesheets().add(World.class.getResource("world.css").toExternalForm());
+        countryPaths = new HashMap<>();
         mouseEnterHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
             for(SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(HOVER_COLOR); }
@@ -81,8 +86,8 @@ public class World extends Region {
             } else {
                 CountryPath countryPath = (CountryPath) evt.getSource();
                 Locale      locale      = countryPath.getLocale();
-                System.out.println(Country.valueOf(countryPath.getName()).value);
                 System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
+                System.out.println((int) Country.valueOf(countryPath.getName()).value + " million people");
                 for (SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(SELECTION_COLOR); }
             }
         };
@@ -117,6 +122,9 @@ public class World extends Region {
             // Add children to pane
             pane.getChildren().addAll(country.PATHS);
 
+            // Add to map
+            countryPaths.put(country.name(), country.PATHS);
+
             // Attach mouse handlers
             for(CountryPath path : country.PATHS) {
                 setFillAndStroke(path, FILL_COLOR, STROKE_COLOR);
@@ -128,14 +136,10 @@ public class World extends Region {
         }
         pane.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
 
-        poiPane = new Pane();
-        poiPane.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
-        poiPane.setMouseTransparent(true);
-
         scalableContentPane = new ScalableContentPane();
         scalableContentPane.setContent(pane);
 
-        getChildren().setAll(scalableContentPane, poiPane);
+        getChildren().setAll(scalableContentPane);
 
         setBackground(new Background(new BackgroundFill(Color.web("#3f3f4f"), CornerRadii.EMPTY, Insets.EMPTY)));
     }
@@ -155,6 +159,8 @@ public class World extends Region {
     @Override protected double computeMaxHeight(final double WIDTH)  { return MAXIMUM_HEIGHT; }
 
     @Override public ObservableList<Node> getChildren() { return super.getChildren(); }
+
+    public Map<String, List<CountryPath>> getCountryPaths() { return countryPaths; }
 
     private void setFillAndStroke(final CountryPath PATH, final Color FILL, final Color STROKE) {
         PATH.setFill(FILL);
@@ -181,10 +187,6 @@ public class World extends Region {
             scalableContentPane.setMaxSize(width, height);
             scalableContentPane.setPrefSize(width, height);
             scalableContentPane.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
-
-            poiPane.setMaxSize(width, height);
-            poiPane.setPrefSize(width, height);
-            poiPane.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
 
             pane.setCache(false);
         }
