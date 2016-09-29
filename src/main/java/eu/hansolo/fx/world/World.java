@@ -77,7 +77,7 @@ public class World extends Region {
         countryPaths = new HashMap<>();
         mouseEnterHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(HOVER_COLOR); }
+            for(CountryPath path : countryPaths.get(countryPath.getName())) { path.setFill(HOVER_COLOR); }
         };
         mousePressHandler = evt -> {
             if (evt.getClickCount() == 2) {
@@ -88,16 +88,16 @@ public class World extends Region {
                 Locale      locale      = countryPath.getLocale();
                 System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
                 System.out.println((int) Country.valueOf(countryPath.getName()).value + " million people");
-                for (SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(SELECTION_COLOR); }
+                for (SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(SELECTION_COLOR); }
             }
         };
         mouseReleaseHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(HOVER_COLOR); }
+            for(SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(HOVER_COLOR); }
         };
         mouseExitHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : Country.valueOf(countryPath.getName()).PATHS) { path.setFill(FILL_COLOR); }
+            for(SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(FILL_COLOR); }
         };
         initGraphics();
         registerListeners();
@@ -120,13 +120,14 @@ public class World extends Region {
         pane = new Pane();
         for(Country country : Country.values()) {
             // Add children to pane
-            pane.getChildren().addAll(country.PATHS);
+            List<CountryPath> paths=country.getPaths();
+            pane.getChildren().addAll(paths);
 
             // Add to map
-            countryPaths.put(country.name(), country.PATHS);
+            countryPaths.put(country.name(), paths);
 
             // Attach mouse handlers
-            for(CountryPath path : country.PATHS) {
+            for(CountryPath path : paths) {
                 setFillAndStroke(path, FILL_COLOR, STROKE_COLOR);
                 path.setOnMouseEntered(mouseEnterHandler);
                 path.setOnMousePressed(mousePressHandler);
