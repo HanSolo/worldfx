@@ -55,12 +55,12 @@ public class World extends Region {
     private static final Color                    STROKE_COLOR     = Color.BLACK;
     private static final Color                    HOVER_COLOR      = Color.web("#456acf");
     private static final Color                    SELECTION_COLOR  = Color.web("#ef6050");
-    private static final double                   ASPECT_RATIO = PREFERRED_HEIGHT / PREFERRED_WIDTH;
+    private static final double                   ASPECT_RATIO     = PREFERRED_HEIGHT / PREFERRED_WIDTH;
     private              double                   width;
     private              double                   height;
     private              Pane                     pane;
     private              Map<String, List<CountryPath>> countryPaths;
-    private              ScalableContentPane scalableContentPane;
+    private              ScalableContentPane      scalableContentPane;
     // internal event handlers
     private              EventHandler<MouseEvent> _mouseEnterHandler;
     private              EventHandler<MouseEvent> _mousePressHandler;
@@ -77,30 +77,21 @@ public class World extends Region {
     public World() {
         getStylesheets().add(World.class.getResource("world.css").toExternalForm());
         countryPaths = new HashMap<>();
-        _mouseEnterHandler = evt -> {
-            CountryPath countryPath = (CountryPath) evt.getSource();
-            for(CountryPath path : countryPaths.get(countryPath.getName())) { path.setFill(HOVER_COLOR); }
-            if (mouseEnterHandler != null) { mouseEnterHandler.handle(evt); }
-        };
-        _mousePressHandler = evt -> {
-            CountryPath countryPath = (CountryPath) evt.getSource();
-            for (SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(SELECTION_COLOR); }
-            if (mousePressHandler != null) { mousePressHandler.handle(evt); }
-        };
-        _mouseReleaseHandler = evt -> {
-            CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(HOVER_COLOR); }
-            if (mouseReleaseHandler != null) { mouseReleaseHandler.handle(evt); }
-        };
-        _mouseExitHandler = evt -> {
-            CountryPath countryPath = (CountryPath) evt.getSource();
-            for(SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(FILL_COLOR); }
-            if (mouseExitHandler != null) { mouseExitHandler.handle(evt); }
-        };
+
+        _mouseEnterHandler = evt -> handleMouseEvent(evt, HOVER_COLOR, mouseEnterHandler);
+        _mousePressHandler = evt -> handleMouseEvent(evt, SELECTION_COLOR, mousePressHandler);
+        _mouseReleaseHandler = evt -> handleMouseEvent(evt, HOVER_COLOR, mouseReleaseHandler);
+        _mouseExitHandler = evt -> handleMouseEvent(evt, FILL_COLOR, mouseExitHandler);
+
         initGraphics();
         registerListeners();
     }
 
+    private void handleMouseEvent(MouseEvent event, Color color, EventHandler<MouseEvent> handler) {
+        CountryPath countryPath = (CountryPath) event.getSource();
+        for (SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(color); }
+        if (handler != null) { handler.handle(event); }
+    }
 
     // ******************** Initialization ************************************
     private void initGraphics() {
