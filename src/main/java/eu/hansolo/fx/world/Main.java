@@ -18,12 +18,11 @@ package eu.hansolo.fx.world;
 
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.stage.Stage;
-import javafx.scene.layout.StackPane;
 import javafx.scene.Scene;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
@@ -43,14 +42,34 @@ public class Main extends Application {
         Map<String, Double> data = new HashMap<>();
         addPopulationData(data);
 
+        world.setMousePressHandler(evt -> {
+            CountryPath countryPath = (CountryPath) evt.getSource();
+            Locale      locale      = countryPath.getLocale();
+            System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
+            System.out.println(Country.valueOf(countryPath.getName()).getValue() + " million people");
+        });
+
         for (Country country : Country.values()) {
             try {
                 String iso3Key = new Locale("", country.name()).getISO3Country();
                 Double value   = data.get(iso3Key);
-                if (null != value) country.value = value;
+                if (null != value) country.setValue(new PopulationValueObject(value));
             } catch (MissingResourceException e) {
 
             }
+        }
+    }
+
+    private static class PopulationValueObject implements ValueObject {
+        private final double value;
+
+        private PopulationValueObject(double value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf((int) value);
         }
     }
 

@@ -16,28 +16,24 @@
 
 package eu.hansolo.fx.world;
 
+import eu.mihosoft.scaledfx.ScalableContentPane;
 import javafx.beans.DefaultProperty;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
-import javafx.geometry.Point2D;
+import javafx.geometry.Insets;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
-import javafx.geometry.Insets;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 
@@ -64,7 +60,13 @@ public class World extends Region {
     private              double                   height;
     private              Pane                     pane;
     private              Map<String, List<CountryPath>> countryPaths;
-    private              ScalableContentPane      scalableContentPane;
+    private              ScalableContentPane scalableContentPane;
+    // internal event handlers
+    private              EventHandler<MouseEvent> _mouseEnterHandler;
+    private              EventHandler<MouseEvent> _mousePressHandler;
+    private              EventHandler<MouseEvent> _mouseReleaseHandler;
+    private              EventHandler<MouseEvent> _mouseExitHandler;
+    // exposed event handlers
     private              EventHandler<MouseEvent> mouseEnterHandler;
     private              EventHandler<MouseEvent> mousePressHandler;
     private              EventHandler<MouseEvent> mouseReleaseHandler;
@@ -75,29 +77,25 @@ public class World extends Region {
     public World() {
         getStylesheets().add(World.class.getResource("world.css").toExternalForm());
         countryPaths = new HashMap<>();
-        mouseEnterHandler = evt -> {
+        _mouseEnterHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
             for(CountryPath path : countryPaths.get(countryPath.getName())) { path.setFill(HOVER_COLOR); }
+            if (mouseEnterHandler != null) { mouseEnterHandler.handle(evt); }
         };
-        mousePressHandler = evt -> {
-            if (evt.getClickCount() == 2) {
-                // DoubleClick -> Zoom in at that area
-                System.out.println("Double Click");
-            } else {
-                CountryPath countryPath = (CountryPath) evt.getSource();
-                Locale      locale      = countryPath.getLocale();
-                System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
-                System.out.println((int) Country.valueOf(countryPath.getName()).value + " million people");
-                for (SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(SELECTION_COLOR); }
-            }
+        _mousePressHandler = evt -> {
+            CountryPath countryPath = (CountryPath) evt.getSource();
+            for (SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(SELECTION_COLOR); }
+            if (mousePressHandler != null) { mousePressHandler.handle(evt); }
         };
-        mouseReleaseHandler = evt -> {
+        _mouseReleaseHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
             for(SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(HOVER_COLOR); }
+            if (mouseReleaseHandler != null) { mouseReleaseHandler.handle(evt); }
         };
-        mouseExitHandler = evt -> {
+        _mouseExitHandler = evt -> {
             CountryPath countryPath = (CountryPath) evt.getSource();
             for(SVGPath path : countryPaths.get(countryPath.getName())) { path.setFill(FILL_COLOR); }
+            if (mouseExitHandler != null) { mouseExitHandler.handle(evt); }
         };
         initGraphics();
         registerListeners();
@@ -129,10 +127,10 @@ public class World extends Region {
             // Attach mouse handlers
             for(CountryPath path : paths) {
                 setFillAndStroke(path, FILL_COLOR, STROKE_COLOR);
-                path.setOnMouseEntered(mouseEnterHandler);
-                path.setOnMousePressed(mousePressHandler);
-                path.setOnMouseReleased(mouseReleaseHandler);
-                path.setOnMouseExited(mouseExitHandler);
+                path.setOnMouseEntered(_mouseEnterHandler);
+                path.setOnMousePressed(_mousePressHandler);
+                path.setOnMouseReleased(_mouseReleaseHandler);
+                path.setOnMouseExited(_mouseExitHandler);
             }
         }
         pane.setBackground(new Background(new BackgroundFill(Color.TRANSPARENT, CornerRadii.EMPTY, Insets.EMPTY)));
@@ -169,6 +167,10 @@ public class World extends Region {
         PATH.setStroke(STROKE);
     }
 
+    public void setMouseEnterHandler(EventHandler<MouseEvent> mouseEnterHandler) { this.mouseEnterHandler = mouseEnterHandler; }
+    public void setMousePressHandler(EventHandler<MouseEvent> mousePressHandler) { this.mousePressHandler = mousePressHandler; }
+    public void setMouseReleaseHandler(EventHandler<MouseEvent> mouseReleaseHandler) { this.mouseReleaseHandler = mouseReleaseHandler;  }
+    public void setMouseExitHandler(EventHandler<MouseEvent> mouseExitHandler) {  this.mouseExitHandler = mouseExitHandler; }
 
     // ******************** Resizing ******************************************
     private void resize() {
