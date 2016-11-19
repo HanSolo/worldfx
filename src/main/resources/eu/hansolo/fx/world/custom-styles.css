@@ -15,9 +15,9 @@
  */
 
 .world {
-    -background-color: #3f3f4f;
-    -fill-color      : #d9d9dc;
-    -stroke-color    : #000000;
-    -hover-color     : #456acf;
-    -pressed-color   : #ef6050;
+    -background-color: #4aa9d7;
+    -fill-color      : #dcb36c;
+    -stroke-color    : #987028;
+    -hover-color     : #fec47e;
+    -pressed-color   : #6cee85;
 }

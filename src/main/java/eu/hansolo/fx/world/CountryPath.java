@@ -30,6 +30,7 @@ public class CountryPath extends SVGPath {
     private final Locale  LOCALE;
     private final Tooltip TOOLTIP;
 
+
     // ******************** Constructors **************************************
     public CountryPath(final String NAME) {
         super();
