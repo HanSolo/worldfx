@@ -29,6 +29,7 @@ import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
@@ -36,7 +37,9 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.shape.Shape;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,81 +57,93 @@ import static javafx.scene.input.MouseEvent.MOUSE_RELEASED;
  * Time: 12:20
  */
 @DefaultProperty("children")
-public class WorldHR extends Region {
+public class WorldHR extends Region implements World {
     private static final StyleablePropertyFactory<WorldHR> FACTORY          = new StyleablePropertyFactory<>(Region.getClassCssMetaData());
-    private static final double                            EARTH_RADIUS     = 6_371_000;
     private static final double                            PREFERRED_WIDTH  = 1009;
     private static final double                            PREFERRED_HEIGHT = 665;
     private static final double                            MINIMUM_WIDTH    = 100;
     private static final double                            MINIMUM_HEIGHT   = 66;
     private static final double                            MAXIMUM_WIDTH    = 2018;
     private static final double                            MAXIMUM_HEIGHT   = 1330;
+    private static       double                            MAP_OFFSET_X     = -PREFERRED_WIDTH * 0.0285;
+    private static       double                            MAP_OFFSET_Y     = PREFERRED_HEIGHT * 0.195;
     private static final double                            ASPECT_RATIO     = PREFERRED_HEIGHT / PREFERRED_WIDTH;
     private static final CssMetaData<WorldHR, Color>       BACKGROUND_COLOR = FACTORY.createColorCssMetaData("-background-color", s -> s.backgroundColor, Color.web("#3f3f4f"), false);
-    private        final StyleableProperty<Color>        backgroundColor;
-    private static final CssMetaData<WorldHR, Color> FILL_COLOR = FACTORY.createColorCssMetaData("-fill-color", s -> s.fillColor, Color.web("#d9d9dc"), false);
-    private        final StyleableProperty<Color>        fillColor;
-    private static final CssMetaData<WorldHR, Color> STROKE_COLOR = FACTORY.createColorCssMetaData("-stroke-color", s -> s.strokeColor, Color.BLACK, false);
-    private        final StyleableProperty<Color>        strokeColor;
-    private static final CssMetaData<WorldHR, Color> HOVER_COLOR = FACTORY.createColorCssMetaData("-hover-color", s -> s.hoverColor, Color.web("#456acf"), false);
-    private        final StyleableProperty<Color>        hoverColor;
-    private static final CssMetaData<WorldHR, Color> PRESSED_COLOR = FACTORY.createColorCssMetaData("-pressed-color", s -> s.pressedColor, Color.web("#ef6050"), false);
-    private        final StyleableProperty<Color>        pressedColor;
-    private              double                          width;
-    private              double                          height;
-    private              Pane                            pane;
-    private              Map<String, List<CountryPath>>  countryPaths;
-    private              ScalableContentPane             scalableContentPane;
+    private        final StyleableProperty<Color>          backgroundColor;
+    private static final CssMetaData<WorldHR, Color>       FILL_COLOR       = FACTORY.createColorCssMetaData("-fill-color", s -> s.fillColor, Color.web("#d9d9dc"), false);
+    private        final StyleableProperty<Color>          fillColor;
+    private static final CssMetaData<WorldHR, Color>       STROKE_COLOR     = FACTORY.createColorCssMetaData("-stroke-color", s -> s.strokeColor, Color.BLACK, false);
+    private        final StyleableProperty<Color>          strokeColor;
+    private static final CssMetaData<WorldHR, Color>       HOVER_COLOR      = FACTORY.createColorCssMetaData("-hover-color", s -> s.hoverColor, Color.web("#456acf"), false);
+    private        final StyleableProperty<Color>          hoverColor;
+    private static final CssMetaData<WorldHR, Color>       PRESSED_COLOR    = FACTORY.createColorCssMetaData("-pressed-color", s -> s.pressedColor, Color.web("#ef6050"), false);
+    private        final StyleableProperty<Color>          pressedColor;
+    private static final CssMetaData<WorldHR, Color>       LOCATION_COLOR   = FACTORY.createColorCssMetaData("-location-color", s -> s.locationColor, Color.web("#ffeb4d"), false);
+    private        final StyleableProperty<Color>          locationColor;
+    private              double                            width;
+    private              double                            height;
+    private              Pane                              locationLayer;
+    private              Pane                              pane;
+    private              Map<String, List<CountryPath>>    countryPaths;
+    private              ScalableContentPane               scalableContentPane;
+    private              boolean                           countryInteractionEnabled;
     // internal event handlers
-    private              EventHandler<MouseEvent>        _mouseEnterHandler;
-    private              EventHandler<MouseEvent>        _mousePressHandler;
-    private              EventHandler<MouseEvent>        _mouseReleaseHandler;
-    private              EventHandler<MouseEvent>        _mouseExitHandler;
+    private              EventHandler<MouseEvent>          _mouseEnterHandler;
+    private              EventHandler<MouseEvent>          _mousePressHandler;
+    private              EventHandler<MouseEvent>          _mouseReleaseHandler;
+    private              EventHandler<MouseEvent>          _mouseExitHandler;
     // exposed event handlers
-    private              EventHandler<MouseEvent>        mouseEnterHandler;
-    private              EventHandler<MouseEvent>        mousePressHandler;
-    private              EventHandler<MouseEvent>        mouseReleaseHandler;
-    private              EventHandler<MouseEvent>        mouseExitHandler;
+    private              EventHandler<MouseEvent>          mouseEnterHandler;
+    private              EventHandler<MouseEvent>          mousePressHandler;
+    private              EventHandler<MouseEvent>          mouseReleaseHandler;
+    private              EventHandler<MouseEvent>          mouseExitHandler;
 
 
     // ******************** Constructors **************************************
     public WorldHR() {
-        backgroundColor      = new StyleableObjectProperty<Color>(BACKGROUND_COLOR.getInitialValue(WorldHR.this)) {
+        backgroundColor           = new StyleableObjectProperty<Color>(BACKGROUND_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { setBackground(new Background(new BackgroundFill(get(), CornerRadii.EMPTY, Insets.EMPTY))); }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "backgroundColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return BACKGROUND_COLOR; }
         };
-        fillColor            = new StyleableObjectProperty<Color>(FILL_COLOR.getInitialValue(WorldHR.this)) {
+        fillColor                 = new StyleableObjectProperty<Color>(FILL_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { setFillAndStroke(); }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "fillColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return FILL_COLOR; }
         };
-        strokeColor          = new StyleableObjectProperty<Color>(STROKE_COLOR.getInitialValue(WorldHR.this)) {
+        strokeColor               = new StyleableObjectProperty<Color>(STROKE_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { setFillAndStroke(); }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "strokeColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return STROKE_COLOR; }
         };
-        hoverColor           = new StyleableObjectProperty<Color>(HOVER_COLOR.getInitialValue(WorldHR.this)) {
+        hoverColor                = new StyleableObjectProperty<Color>(HOVER_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "hoverColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return HOVER_COLOR; }
         };
-        pressedColor         = new StyleableObjectProperty<Color>(PRESSED_COLOR.getInitialValue(this)) {
+        pressedColor              = new StyleableObjectProperty<Color>(PRESSED_COLOR.getInitialValue(this)) {
             @Override protected void invalidated() { }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "pressedColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return PRESSED_COLOR; }
         };
-        countryPaths         = new HashMap<>();
+        locationColor             = new StyleableObjectProperty<Color>(LOCATION_COLOR.getInitialValue(this)) {
+            @Override protected void invalidated() { }
+            @Override public Object getBean() { return WorldHR.this; }
+            @Override public String getName() { return "locationColor"; }
+            @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return LOCATION_COLOR; }
+        };
+        countryPaths              = new HashMap<>();
+        countryInteractionEnabled = true;
 
-        _mouseEnterHandler   = evt -> handleMouseEvent(evt, mouseEnterHandler);
-        _mousePressHandler   = evt -> handleMouseEvent(evt, mousePressHandler);
-        _mouseReleaseHandler = evt -> handleMouseEvent(evt, mouseReleaseHandler);
-        _mouseExitHandler    = evt -> handleMouseEvent(evt, mouseExitHandler);
+        _mouseEnterHandler        = evt -> handleMouseEvent(evt, mouseEnterHandler);
+        _mousePressHandler        = evt -> handleMouseEvent(evt, mousePressHandler);
+        _mouseReleaseHandler      = evt -> handleMouseEvent(evt, mouseReleaseHandler);
+        _mouseExitHandler         = evt -> handleMouseEvent(evt, mouseExitHandler);
 
         initGraphics();
         registerListeners();
@@ -169,6 +184,10 @@ public class WorldHR extends Region {
             }
         }
 
+        locationLayer = new Pane();
+        locationLayer.setMouseTransparent(true);
+        pane.getChildren().add(locationLayer);
+
         scalableContentPane = new ScalableContentPane();
         scalableContentPane.setContent(pane);
 
@@ -193,46 +212,89 @@ public class WorldHR extends Region {
 
     @Override public ObservableList<Node> getChildren() { return super.getChildren(); }
 
-    public Map<String, List<CountryPath>> getCountryPaths() { return countryPaths; }
+    @Override public Map<String, List<CountryPath>> getCountryPaths() { return countryPaths; }
 
-    public void setMouseEnterHandler(final EventHandler<MouseEvent> HANDLER) { mouseEnterHandler = HANDLER; }
-    public void setMousePressHandler(final EventHandler<MouseEvent> HANDLER) { mousePressHandler = HANDLER; }
-    public void setMouseReleaseHandler(final EventHandler<MouseEvent> HANDLER) { mouseReleaseHandler = HANDLER;  }
-    public void setMouseExitHandler(final EventHandler<MouseEvent> HANDLER) { mouseExitHandler = HANDLER; }
+    @Override public void setMouseEnterHandler(final EventHandler<MouseEvent> HANDLER) { mouseEnterHandler = HANDLER; }
+    @Override public void setMousePressHandler(final EventHandler<MouseEvent> HANDLER) { mousePressHandler = HANDLER; }
+    @Override public void setMouseReleaseHandler(final EventHandler<MouseEvent> HANDLER) { mouseReleaseHandler = HANDLER;  }
+    @Override public void setMouseExitHandler(final EventHandler<MouseEvent> HANDLER) { mouseExitHandler = HANDLER; }
 
-    public Color getBackgroundColor() { return backgroundColor.getValue(); }
-    public void setBackgroundColor(final Color COLOR) { backgroundColor.setValue(COLOR); }
-    public ObjectProperty<Color> backgroundColorProperty() { return (ObjectProperty<Color>) backgroundColor; }
+    @Override public Color getBackgroundColor() { return backgroundColor.getValue(); }
+    @Override public void setBackgroundColor(final Color COLOR) { backgroundColor.setValue(COLOR); }
+    @Override public ObjectProperty<Color> backgroundColorProperty() { return (ObjectProperty<Color>) backgroundColor; }
 
-    public Color getFillColor() { return fillColor.getValue(); }
-    public void setFillColor(final Color COLOR) { fillColor.setValue(COLOR); }
-    public ObjectProperty<Color> fillColorProperty() { return (ObjectProperty<Color>) fillColor; }
+    @Override public Color getFillColor() { return fillColor.getValue(); }
+    @Override public void setFillColor(final Color COLOR) { fillColor.setValue(COLOR); }
+    @Override public ObjectProperty<Color> fillColorProperty() { return (ObjectProperty<Color>) fillColor; }
 
-    public Color getStrokeColor() { return strokeColor.getValue(); }
-    public void setStrokeColor(final Color COLOR) { strokeColor.setValue(COLOR); }
-    public ObjectProperty<Color> strokeColorProperty() { return (ObjectProperty<Color>) strokeColor; }
+    @Override public Color getStrokeColor() { return strokeColor.getValue(); }
+    @Override public void setStrokeColor(final Color COLOR) { strokeColor.setValue(COLOR); }
+    @Override public ObjectProperty<Color> strokeColorProperty() { return (ObjectProperty<Color>) strokeColor; }
 
-    public Color getHoverColor() { return hoverColor.getValue(); }
-    public void setHoverColor(final Color COLOR) { hoverColor.setValue(COLOR); }
-    public ObjectProperty<Color> hoverColorProperty() { return (ObjectProperty<Color>) hoverColor; }
+    @Override public Color getHoverColor() { return hoverColor.getValue(); }
+    @Override public void setHoverColor(final Color COLOR) { hoverColor.setValue(COLOR); }
+    @Override public ObjectProperty<Color> hoverColorProperty() { return (ObjectProperty<Color>) hoverColor; }
 
-    public Color getPressedColor() { return pressedColor.getValue(); }
-    public void setPressedColor(final Color COLOR) { pressedColor.setValue(COLOR); }
-    public ObjectProperty<Color> pressedColorProperty() { return (ObjectProperty<Color>) pressedColor; }
+    @Override public Color getPressedColor() { return pressedColor.getValue(); }
+    @Override public void setPressedColor(final Color COLOR) { pressedColor.setValue(COLOR); }
+    @Override public ObjectProperty<Color> pressedColorProperty() { return (ObjectProperty<Color>) pressedColor; }
+
+    @Override public Color getLocationColor() { return locationColor.getValue(); }
+    @Override public void setLocationColor(final Color COLOR) { locationColor.setValue(COLOR); }
+    @Override public ObjectProperty<Color> locationColorProperty() { return (ObjectProperty<Color>) locationColor; }
+
+    @Override public boolean isCountryInteractionEnabled() { return countryInteractionEnabled; }
+    @Override public void setCountryInteractionEnabled(final boolean ENABLE) {
+        countryInteractionEnabled = ENABLE;
+        locationLayer.setMouseTransparent(countryInteractionEnabled);
+    }
+
+    @Override public void addLocation(final Location LOCATION) {
+        double x = (LOCATION.getLongitude() + 180) * (width / 360) + MAP_OFFSET_X;
+        double y = (height / 2) - (width * (Math.log(Math.tan((Math.PI / 4) + (Math.toRadians(LOCATION.getLatitude()) / 2)))) / (2 * Math.PI)) + MAP_OFFSET_Y;
+
+        Shape locationIcon = new Circle(x, y, 3);
+        locationIcon.setFill(null == LOCATION.getColor() ? getLocationColor() : LOCATION.getColor());
+
+        StringBuilder tooltipBuilder = new StringBuilder();
+        if (!LOCATION.getName().isEmpty()) tooltipBuilder.append(LOCATION.getName());
+        if (!LOCATION.getInfo().isEmpty()) tooltipBuilder.append("\n").append(LOCATION.getInfo());
+        String tooltipText = tooltipBuilder.toString();
+        if (!tooltipText.isEmpty()) {
+            Tooltip.install(locationIcon, new Tooltip(tooltipText));
+        }
+
+        locationLayer.getChildren().add(locationIcon);
+    }
+    @Override public void removeLocation(final Location LOCATION) {
+        locationLayer.getChildren().remove(LOCATION);
+    }
+
+    @Override public void addLocations(final Location... LOCATIONS) {
+        for (Location location : LOCATIONS) { addLocation(location); }
+    }
+    @Override public void clearLocationLayer() { locationLayer.getChildren().clear(); }
+
+    @Override public void showLocations(final boolean SHOW) {
+        locationLayer.setManaged(SHOW);
+        locationLayer.setVisible(SHOW);
+    }
 
     private void handleMouseEvent(final MouseEvent EVENT, final EventHandler<MouseEvent> HANDLER) {
         final CountryPath COUNTRY_PATH = (CountryPath) EVENT.getSource();
         final String      COUNTRY_NAME = COUNTRY_PATH.getName();
 
         final EventType TYPE = EVENT.getEventType();
-        if (MOUSE_ENTERED == TYPE) {
-            for(SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
-        } else if (MOUSE_PRESSED == TYPE) {
-            for(SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getPressedColor()); }
-        } else if (MOUSE_RELEASED == TYPE) {
-            for(SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
-        } else if (MOUSE_EXITED == TYPE) {
-            for(SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getFillColor()); }
+        if (countryInteractionEnabled) {
+            if (MOUSE_ENTERED == TYPE) {
+                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
+            } else if (MOUSE_PRESSED == TYPE) {
+                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getPressedColor()); }
+            } else if (MOUSE_RELEASED == TYPE) {
+                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
+            } else if (MOUSE_EXITED == TYPE) {
+                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getFillColor()); }
+            }
         }
 
         if (null != HANDLER) HANDLER.handle(EVENT);
