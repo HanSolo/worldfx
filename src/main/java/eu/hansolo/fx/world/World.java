@@ -32,60 +32,40 @@ public interface World {
     Map<String, List<CountryPath>> getCountryPaths();
 
     void setMouseEnterHandler(EventHandler<MouseEvent> HANDLER);
-
     void setMousePressHandler(EventHandler<MouseEvent> HANDLER);
-
     void setMouseReleaseHandler(EventHandler<MouseEvent> HANDLER);
-
     void setMouseExitHandler(EventHandler<MouseEvent> HANDLER);
 
     Color getBackgroundColor();
-
     void setBackgroundColor(Color COLOR);
-
     ObjectProperty<Color> backgroundColorProperty();
 
     Color getFillColor();
-
     void setFillColor(Color COLOR);
-
     ObjectProperty<Color> fillColorProperty();
 
     Color getStrokeColor();
-
     void setStrokeColor(Color COLOR);
-
     ObjectProperty<Color> strokeColorProperty();
 
     Color getHoverColor();
-
     void setHoverColor(Color COLOR);
-
     ObjectProperty<Color> hoverColorProperty();
 
     Color getPressedColor();
-
     void setPressedColor(Color COLOR);
-
     ObjectProperty<Color> pressedColorProperty();
 
     Color getLocationColor();
-
     void setLocationColor(Color COLOR);
-
     ObjectProperty<Color> locationColorProperty();
 
-    boolean isCountryInteractionEnabled();
-
-    void setCountryInteractionEnabled(boolean ENABLE);
 
     void addLocation(Location LOCATION);
-
     void removeLocation(Location LOCATION);
 
     void addLocations(Location... LOCATIONS);
-
-    void clearLocationLayer();
+    void clearLocations();
 
     void showLocations(boolean SHOW);
 }

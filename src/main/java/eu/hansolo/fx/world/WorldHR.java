@@ -18,7 +18,10 @@ package eu.hansolo.fx.world;
 
 import javafx.beans.DefaultProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableMap;
 import javafx.css.CssMetaData;
 import javafx.css.Styleable;
 import javafx.css.StyleableObjectProperty;
@@ -82,11 +85,10 @@ public class WorldHR extends Region implements World {
     private        final StyleableProperty<Color>          locationColor;
     private              double                            width;
     private              double                            height;
-    private              Pane                              locationLayer;
     private              Pane                              pane;
-    private              Map<String, List<CountryPath>>    countryPaths;
     private              ScalableContentPane               scalableContentPane;
-    private              boolean                           countryInteractionEnabled;
+    private              Map<String, List<CountryPath>>    countryPaths;
+    private              ObservableMap<Location, Shape>    locations;
     // internal event handlers
     private              EventHandler<MouseEvent>          _mouseEnterHandler;
     private              EventHandler<MouseEvent>          _mousePressHandler;
@@ -101,49 +103,49 @@ public class WorldHR extends Region implements World {
 
     // ******************** Constructors **************************************
     public WorldHR() {
-        backgroundColor           = new StyleableObjectProperty<Color>(BACKGROUND_COLOR.getInitialValue(WorldHR.this)) {
+        backgroundColor      = new StyleableObjectProperty<Color>(BACKGROUND_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { setBackground(new Background(new BackgroundFill(get(), CornerRadii.EMPTY, Insets.EMPTY))); }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "backgroundColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return BACKGROUND_COLOR; }
         };
-        fillColor                 = new StyleableObjectProperty<Color>(FILL_COLOR.getInitialValue(WorldHR.this)) {
+        fillColor            = new StyleableObjectProperty<Color>(FILL_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { setFillAndStroke(); }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "fillColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return FILL_COLOR; }
         };
-        strokeColor               = new StyleableObjectProperty<Color>(STROKE_COLOR.getInitialValue(WorldHR.this)) {
+        strokeColor          = new StyleableObjectProperty<Color>(STROKE_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { setFillAndStroke(); }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "strokeColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return STROKE_COLOR; }
         };
-        hoverColor                = new StyleableObjectProperty<Color>(HOVER_COLOR.getInitialValue(WorldHR.this)) {
+        hoverColor           = new StyleableObjectProperty<Color>(HOVER_COLOR.getInitialValue(WorldHR.this)) {
             @Override protected void invalidated() { }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "hoverColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return HOVER_COLOR; }
         };
-        pressedColor              = new StyleableObjectProperty<Color>(PRESSED_COLOR.getInitialValue(this)) {
+        pressedColor         = new StyleableObjectProperty<Color>(PRESSED_COLOR.getInitialValue(this)) {
             @Override protected void invalidated() { }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "pressedColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return PRESSED_COLOR; }
         };
-        locationColor             = new StyleableObjectProperty<Color>(LOCATION_COLOR.getInitialValue(this)) {
+        locationColor        = new StyleableObjectProperty<Color>(LOCATION_COLOR.getInitialValue(this)) {
             @Override protected void invalidated() { }
             @Override public Object getBean() { return WorldHR.this; }
             @Override public String getName() { return "locationColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return LOCATION_COLOR; }
         };
-        countryPaths              = new HashMap<>();
-        countryInteractionEnabled = true;
+        countryPaths         = new HashMap<>();
+        locations            = FXCollections.observableHashMap();
 
-        _mouseEnterHandler        = evt -> handleMouseEvent(evt, mouseEnterHandler);
-        _mousePressHandler        = evt -> handleMouseEvent(evt, mousePressHandler);
-        _mouseReleaseHandler      = evt -> handleMouseEvent(evt, mouseReleaseHandler);
-        _mouseExitHandler         = evt -> handleMouseEvent(evt, mouseExitHandler);
+        _mouseEnterHandler   = evt -> handleMouseEvent(evt, mouseEnterHandler);
+        _mousePressHandler   = evt -> handleMouseEvent(evt, mousePressHandler);
+        _mouseReleaseHandler = evt -> handleMouseEvent(evt, mouseReleaseHandler);
+        _mouseExitHandler    = evt -> handleMouseEvent(evt, mouseExitHandler);
 
         initGraphics();
         registerListeners();
@@ -184,10 +186,6 @@ public class WorldHR extends Region implements World {
             }
         }
 
-        locationLayer = new Pane();
-        locationLayer.setMouseTransparent(true);
-        pane.getChildren().add(locationLayer);
-
         scalableContentPane = new ScalableContentPane();
         scalableContentPane.setContent(pane);
 
@@ -199,6 +197,15 @@ public class WorldHR extends Region implements World {
     private void registerListeners() {
         widthProperty().addListener(o -> resize());
         heightProperty().addListener(o -> resize());
+        locations.addListener(new MapChangeListener<Location, Shape>() {
+            @Override public void onChanged(final Change<? extends Location, ? extends Shape> change) {
+                if (change.wasAdded()) {
+                    pane.getChildren().add(change.getValueAdded());
+                } else if(change.wasRemoved()) {
+                    pane.getChildren().remove(change.getValueRemoved());
+                }
+            }
+        });
     }
 
 
@@ -243,12 +250,6 @@ public class WorldHR extends Region implements World {
     @Override public void setLocationColor(final Color COLOR) { locationColor.setValue(COLOR); }
     @Override public ObjectProperty<Color> locationColorProperty() { return (ObjectProperty<Color>) locationColor; }
 
-    @Override public boolean isCountryInteractionEnabled() { return countryInteractionEnabled; }
-    @Override public void setCountryInteractionEnabled(final boolean ENABLE) {
-        countryInteractionEnabled = ENABLE;
-        locationLayer.setMouseTransparent(countryInteractionEnabled);
-    }
-
     @Override public void addLocation(final Location LOCATION) {
         double x = (LOCATION.getLongitude() + 180) * (width / 360) + MAP_OFFSET_X;
         double y = (height / 2) - (width * (Math.log(Math.tan((Math.PI / 4) + (Math.toRadians(LOCATION.getLatitude()) / 2)))) / (2 * Math.PI)) + MAP_OFFSET_Y;
@@ -264,20 +265,22 @@ public class WorldHR extends Region implements World {
             Tooltip.install(locationIcon, new Tooltip(tooltipText));
         }
 
-        locationLayer.getChildren().add(locationIcon);
+        locations.put(LOCATION, locationIcon);
     }
     @Override public void removeLocation(final Location LOCATION) {
-        locationLayer.getChildren().remove(LOCATION);
+        locations.remove(LOCATION);
     }
 
     @Override public void addLocations(final Location... LOCATIONS) {
         for (Location location : LOCATIONS) { addLocation(location); }
     }
-    @Override public void clearLocationLayer() { locationLayer.getChildren().clear(); }
+    @Override public void clearLocations() { locations.clear(); }
 
     @Override public void showLocations(final boolean SHOW) {
-        locationLayer.setManaged(SHOW);
-        locationLayer.setVisible(SHOW);
+        for (Shape shape : locations.values()) {
+            shape.setManaged(SHOW);
+            shape.setVisible(SHOW);
+        }
     }
 
     private void handleMouseEvent(final MouseEvent EVENT, final EventHandler<MouseEvent> HANDLER) {
@@ -285,16 +288,14 @@ public class WorldHR extends Region implements World {
         final String      COUNTRY_NAME = COUNTRY_PATH.getName();
 
         final EventType TYPE = EVENT.getEventType();
-        if (countryInteractionEnabled) {
-            if (MOUSE_ENTERED == TYPE) {
-                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
-            } else if (MOUSE_PRESSED == TYPE) {
-                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getPressedColor()); }
-            } else if (MOUSE_RELEASED == TYPE) {
-                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
-            } else if (MOUSE_EXITED == TYPE) {
-                for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getFillColor()); }
-            }
+        if (MOUSE_ENTERED == TYPE) {
+            for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
+        } else if (MOUSE_PRESSED == TYPE) {
+            for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getPressedColor()); }
+        } else if (MOUSE_RELEASED == TYPE) {
+            for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
+        } else if (MOUSE_EXITED == TYPE) {
+            for (SVGPath path : CountryHR.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getFillColor()); }
         }
 
         if (null != HANDLER) HANDLER.handle(EVENT);
