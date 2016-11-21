@@ -16,6 +16,7 @@
 
 package eu.hansolo.fx.world;
 
+import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
@@ -28,6 +29,7 @@ import javafx.css.StyleableProperty;
 import javafx.css.StyleablePropertyFactory;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
+import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
@@ -38,8 +40,8 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
@@ -77,21 +79,21 @@ public abstract class World extends Region {
     private        final StyleableProperty<Color>        locationColor;
     private              double                          width;
     private              double                          height;
-    //protected            Ikon                            locationIconCode;
+    protected            Ikon                            locationIconCode;
     protected            Pane                            pane;
     protected            ScalableContentPane             scalableContentPane;
     protected            Map<String, List<CountryPath>>  countryPaths;
     protected            ObservableMap<Location, Shape>  locations;
     // internal event handlers
-    protected            EventHandler<MouseEvent>       _mouseEnterHandler;
-    protected            EventHandler<MouseEvent>       _mousePressHandler;
-    protected            EventHandler<MouseEvent>       _mouseReleaseHandler;
-    protected            EventHandler<MouseEvent>       _mouseExitHandler;
+    protected            EventHandler<MouseEvent>        _mouseEnterHandler;
+    protected            EventHandler<MouseEvent>        _mousePressHandler;
+    protected            EventHandler<MouseEvent>        _mouseReleaseHandler;
+    protected            EventHandler<MouseEvent>        _mouseExitHandler;
     // exposed event handlers
-    private              EventHandler<MouseEvent>       mouseEnterHandler;
-    private              EventHandler<MouseEvent>       mousePressHandler;
-    private              EventHandler<MouseEvent>       mouseReleaseHandler;
-    private              EventHandler<MouseEvent>       mouseExitHandler;
+    private              EventHandler<MouseEvent>        mouseEnterHandler;
+    private              EventHandler<MouseEvent>        mousePressHandler;
+    private              EventHandler<MouseEvent>        mouseReleaseHandler;
+    private              EventHandler<MouseEvent>        mouseExitHandler;
 
 
     // ******************** Constructors **************************************
@@ -137,7 +139,7 @@ public abstract class World extends Region {
         countryPaths         = new HashMap<>();
         locations            = FXCollections.observableHashMap();
 
-        //locationIconCode     = MaterialDesign.MDI_CHECKBOX_BLANK_CIRCLE;
+        locationIconCode     = MaterialDesign.MDI_CHECKBOX_BLANK_CIRCLE;
         pane                 = new Pane();
         scalableContentPane  = new ScalableContentPane();
 
@@ -158,11 +160,12 @@ public abstract class World extends Region {
         widthProperty().addListener(o -> resize());
         heightProperty().addListener(o -> resize());
         locations.addListener(new MapChangeListener<Location, Shape>() {
-            @Override public void onChanged(final Change<? extends Location, ? extends Shape> change) {
-                if (change.wasAdded()) {
-                    pane.getChildren().add(change.getValueAdded());
-                } else if(change.wasRemoved()) {
-                    pane.getChildren().remove(change.getValueRemoved());
+            @Override public void onChanged(final Change<? extends Location, ? extends Shape> CHANGE) {
+                if (CHANGE.wasAdded()) {
+                    sceneProperty().addListener(o -> addShapeToScene(CHANGE.getValueAdded()));
+                    addShapeToScene(CHANGE.getValueAdded());
+                } else if(CHANGE.wasRemoved()) {
+                    Platform.runLater(() -> pane.getChildren().remove(CHANGE.getValueRemoved()));
                 }
             }
         });
@@ -210,30 +213,25 @@ public abstract class World extends Region {
     public void setLocationColor(final Color COLOR) { locationColor.setValue(COLOR); }
     public ObjectProperty<Color> locationColorProperty() { return (ObjectProperty<Color>) locationColor; }
 
-    //public Ikon getLocationIconCode() { return locationIconCode; }
-    //public void setLocationIconCode(final Ikon ICON_CODE) { locationIconCode = ICON_CODE; }
+    public Ikon getLocationIconCode() { return locationIconCode; }
+    public void setLocationIconCode(final Ikon ICON_CODE) { locationIconCode = ICON_CODE; }
 
     public void addLocation(final Location LOCATION) {
         double x = (LOCATION.getLongitude() + 180) * (PREFERRED_WIDTH / 360) + MAP_OFFSET_X;
         double y = (PREFERRED_HEIGHT / 2) - (PREFERRED_WIDTH * (Math.log(Math.tan((Math.PI / 4) + (Math.toRadians(LOCATION.getLatitude()) / 2)))) / (2 * Math.PI)) + MAP_OFFSET_Y;
 
-        Shape locationIcon = new Circle(x, y, 3);
-        locationIcon.setFill(null == LOCATION.getColor() ? getLocationColor() : LOCATION.getColor());
-
-        /*
         FontIcon locationIcon = new FontIcon(null == LOCATION.getIconCode() ? locationIconCode : LOCATION.getIconCode());
-        locationIcon.setIconSize(8);
+        locationIcon.setFont(Font.font(10));
+        locationIcon.setTextOrigin(VPos.CENTER);
         locationIcon.setIconColor(null == LOCATION.getColor() ? getLocationColor() : LOCATION.getColor());
-        locationIcon.relocate(x, y);
-        */
+        locationIcon.setX(x - locationIcon.getFont().getSize() * 0.5);
+        locationIcon.setY(y);
 
         StringBuilder tooltipBuilder = new StringBuilder();
         if (!LOCATION.getName().isEmpty()) tooltipBuilder.append(LOCATION.getName());
         if (!LOCATION.getInfo().isEmpty()) tooltipBuilder.append("\n").append(LOCATION.getInfo());
         String tooltipText = tooltipBuilder.toString();
-        if (!tooltipText.isEmpty()) {
-            Tooltip.install(locationIcon, new Tooltip(tooltipText));
-        }
+        if (!tooltipText.isEmpty()) { Tooltip.install(locationIcon, new Tooltip(tooltipText)); }
 
         locations.put(LOCATION, locationIcon);
     }
@@ -251,6 +249,11 @@ public abstract class World extends Region {
             shape.setManaged(SHOW);
             shape.setVisible(SHOW);
         }
+    }
+
+    private void addShapeToScene(final Shape SHAPE) {
+        if (null == getScene()) return;
+        Platform.runLater(() -> pane.getChildren().add(SHAPE));
     }
 
     protected abstract void handleMouseEvent(final MouseEvent EVENT, final EventHandler<MouseEvent> HANDLER);

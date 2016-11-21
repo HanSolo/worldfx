@@ -57,7 +57,7 @@ public class MainHR extends Application {
                                        new Location("MAD", 40.483162, -3.579211),
                                        new Location("CDG", 49.014162, 2.541908),
                                        new Location("LHR", 51.471125, -0.461951),
-                                       new Location("FRA", 50.040864, 8.560409, Color.LIME, MaterialDesign.MDI_STAR),
+                                       new Location("FRA", 50.040864, 8.560409, Color.RED, MaterialDesign.MDI_STAR),
                                        new Location("SVO", 55.972401, 37.412537),
                                        new Location("DEL", 28.555839, 77.100956),
                                        new Location("PEK", 40.077624, 116.605458),
