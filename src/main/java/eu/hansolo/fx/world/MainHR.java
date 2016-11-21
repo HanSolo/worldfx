@@ -34,10 +34,10 @@ import java.util.MissingResourceException;
  * Time: 13:37
  */
 public class MainHR extends Application {
-    private WorldHR world;
+    private World world;
 
     @Override public void init() {
-        world = new WorldHR();
+        world = new WorldHighRes();
         /*
         world.setBackgroundColor(Color.DARKBLUE);
         world.setHoverColor(Color.CYAN);
@@ -52,18 +52,37 @@ public class MainHR extends Application {
             CountryPath countryPath = (CountryPath) evt.getSource();
             Locale      locale      = countryPath.getLocale();
             System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
-            System.out.println(CountryHR.valueOf(countryPath.getName()).getValue() + " million people");
+            System.out.println(CountryHighRes.valueOf(countryPath.getName()).getValue() + " million people");
         });
 
         //world.setCountryInteractionEnabled(false);
 
-        for (CountryHR country : CountryHR.values()) {
+        for (CountryHighRes country : CountryHighRes.values()) {
             try {
                 String iso3Key = new Locale("", country.name()).getISO3Country();
                 Double value   = data.get(iso3Key);
                 country.setValue(new PopulationValueObject(null == value ? -1 : value));
             } catch (MissingResourceException e) {}
         }
+
+        Location SFO = new Location("SFO", 37.619751, -122.374366);
+        Location YYC = new Location("YYC", 51.128148, -114.010791);
+        Location ORD = new Location("ORD", 41.975806, -87.905294);
+        Location YOW = new Location("YOW", 45.321867, -75.668200);
+        Location JFK = new Location("JFK", 40.642660, -73.781232);
+        Location GRU = new Location("GRU", -23.427337, -46.478853);
+        Location RKV = new Location("RKV", 64.131830, -21.945686);
+        Location MAD = new Location("MAD", 40.483162, -3.579211);
+        Location CDG = new Location("CDG", 49.014162, 2.541908);
+        Location LHR = new Location("LHR", 51.471125, -0.461951);
+        Location FRA = new Location("FRA", 50.040864, 8.560409, "", Color.LIME);
+        Location SVO = new Location("SVO", 55.972401, 37.412537);
+        Location DEL = new Location("DEL", 28.555839, 77.100956);
+        Location PEK = new Location("PEK", 40.077624, 116.605458);
+        Location NRT = new Location("NRT", 35.766948, 140.385254);
+        Location SYD = new Location("SYD", -33.939040, 151.174996);
+
+        world.addLocations(SFO, YYC, ORD, YOW, JFK, GRU, RKV, MAD, CDG, LHR, FRA, SVO, DEL, PEK, NRT, SYD);
     }
 
     private static class PopulationValueObject implements ValueObject {
@@ -277,25 +296,6 @@ public class MainHR extends Application {
         stage.setTitle("World Map (HR)");
         stage.setScene(scene);
         stage.show();
-
-        Location SFO = new Location("SFO", 37.619751, -122.374366);
-        Location YYC = new Location("YYC", 51.128148, -114.010791);
-        Location ORD = new Location("ORD", 41.975806, -87.905294);
-        Location YOW = new Location("YOW", 45.321867, -75.668200);
-        Location JFK = new Location("JFK", 40.642660, -73.781232);
-        Location GRU = new Location("GRU", -23.427337, -46.478853);
-        Location RKV = new Location("RKV", 64.131830, -21.945686);
-        Location MAD = new Location("MAD", 40.483162, -3.579211);
-        Location CDG = new Location("CDG", 49.014162, 2.541908);
-        Location LHR = new Location("LHR", 51.471125, -0.461951);
-        Location FRA = new Location("FRA", 50.040864, 8.560409, "", Color.LIME);
-        Location SVO = new Location("SVO", 55.972401, 37.412537);
-        Location DEL = new Location("DEL", 28.555839, 77.100956);
-        Location PEK = new Location("PEK", 40.077624, 116.605458);
-        Location NRT = new Location("NRT", 35.766948, 140.385254);
-        Location SYD = new Location("SYD", -33.939040, 151.174996);
-
-        world.addLocations(SFO, YYC, ORD, YOW, JFK, GRU, RKV, MAD, CDG, LHR, FRA, SVO, DEL, PEK, NRT, SYD);
     }
 
     @Override public void stop() {
