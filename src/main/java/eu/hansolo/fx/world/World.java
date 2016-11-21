@@ -77,7 +77,7 @@ public abstract class World extends Region {
     private        final StyleableProperty<Color>        locationColor;
     private              double                          width;
     private              double                          height;
-    protected            Ikon                            locationIconCode;
+    //protected            Ikon                            locationIconCode;
     protected            Pane                            pane;
     protected            ScalableContentPane             scalableContentPane;
     protected            Map<String, List<CountryPath>>  countryPaths;
@@ -137,7 +137,7 @@ public abstract class World extends Region {
         countryPaths         = new HashMap<>();
         locations            = FXCollections.observableHashMap();
 
-        locationIconCode     = MaterialDesign.MDI_CHECKBOX_BLANK_CIRCLE;
+        //locationIconCode     = MaterialDesign.MDI_CHECKBOX_BLANK_CIRCLE;
         pane                 = new Pane();
         scalableContentPane  = new ScalableContentPane();
 
@@ -210,8 +210,8 @@ public abstract class World extends Region {
     public void setLocationColor(final Color COLOR) { locationColor.setValue(COLOR); }
     public ObjectProperty<Color> locationColorProperty() { return (ObjectProperty<Color>) locationColor; }
 
-    public Ikon getLocationIconCode() { return locationIconCode; }
-    public void setLocationIconCode(final Ikon ICON_CODE) { locationIconCode = ICON_CODE; }
+    //public Ikon getLocationIconCode() { return locationIconCode; }
+    //public void setLocationIconCode(final Ikon ICON_CODE) { locationIconCode = ICON_CODE; }
 
     public void addLocation(final Location LOCATION) {
         double x = (LOCATION.getLongitude() + 180) * (PREFERRED_WIDTH / 360) + MAP_OFFSET_X;

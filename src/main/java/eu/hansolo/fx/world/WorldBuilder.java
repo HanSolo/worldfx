@@ -261,7 +261,7 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
             } else if ("showLocations".equals(key)) {
                 CONTROL.showLocations(((BooleanProperty) properties.get(key)).get());
             } else if ("locationIconCode".equals(key)) {
-                CONTROL.setLocationIconCode(((ObjectProperty<Ikon>) properties.get(key)).get());
+                //CONTROL.setLocationIconCode(((ObjectProperty<Ikon>) properties.get(key)).get());
             }
         }
         return CONTROL;
