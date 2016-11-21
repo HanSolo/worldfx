@@ -55,9 +55,6 @@ public class MainLR extends Application {
             System.out.println(CountryLowRes.valueOf(countryPath.getName()).getValue() + " million people");
         });
 
-        //world.setCountryInteractionEnabled(false);
-
-
         for (CountryLowRes country : CountryLowRes.values()) {
             try {
                 String iso3Key = new Locale("", country.name()).getISO3Country();
