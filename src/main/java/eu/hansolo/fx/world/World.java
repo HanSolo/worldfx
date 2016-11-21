@@ -31,6 +31,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
@@ -41,7 +42,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
@@ -76,21 +76,21 @@ public abstract class World extends Region {
     private static final CssMetaData<World, Color>       PRESSED_COLOR    = FACTORY.createColorCssMetaData("-pressed-color", s -> s.pressedColor, Color.web("#789dff"), false);
     private        final StyleableProperty<Color>        pressedColor;
     private static final CssMetaData<World, Color>       LOCATION_COLOR   = FACTORY.createColorCssMetaData("-location-color", s -> s.locationColor, Color.web("#ff0000"), false);
-    private        final StyleableProperty<Color>        locationColor;
-    private              double                          width;
-    private              double                          height;
-    protected            Ikon                            locationIconCode;
-    protected            Pane                            pane;
-    protected            ScalableContentPane             scalableContentPane;
-    protected            Map<String, List<CountryPath>>  countryPaths;
-    protected            ObservableMap<Location, Shape>  locations;
+    private        final StyleableProperty<Color>       locationColor;
+    private              double                         width;
+    private              double                         height;
+    protected            Ikon                           locationIconCode;
+    protected            Pane                           pane;
+    protected            Group                          group;
+    protected            Map<String, List<CountryPath>> countryPaths;
+    protected            ObservableMap<Location, Shape> locations;
     // internal event handlers
-    protected            EventHandler<MouseEvent>        _mouseEnterHandler;
-    protected            EventHandler<MouseEvent>        _mousePressHandler;
-    protected            EventHandler<MouseEvent>        _mouseReleaseHandler;
-    protected            EventHandler<MouseEvent>        _mouseExitHandler;
+    protected            EventHandler<MouseEvent>       _mouseEnterHandler;
+    protected            EventHandler<MouseEvent>       _mousePressHandler;
+    protected            EventHandler<MouseEvent>       _mouseReleaseHandler;
+    protected            EventHandler<MouseEvent>       _mouseExitHandler;
     // exposed event handlers
-    private              EventHandler<MouseEvent>        mouseEnterHandler;
+    private              EventHandler<MouseEvent>       mouseEnterHandler;
     private              EventHandler<MouseEvent>        mousePressHandler;
     private              EventHandler<MouseEvent>        mouseReleaseHandler;
     private              EventHandler<MouseEvent>        mouseExitHandler;
@@ -141,7 +141,8 @@ public abstract class World extends Region {
 
         locationIconCode     = MaterialDesign.MDI_CHECKBOX_BLANK_CIRCLE;
         pane                 = new Pane();
-        scalableContentPane  = new ScalableContentPane();
+        //group  = new ScalableContentPane();
+        group = new Group();
 
         _mouseEnterHandler   = evt -> handleMouseEvent(evt, mouseEnterHandler);
         _mousePressHandler   = evt -> handleMouseEvent(evt, mousePressHandler);
@@ -290,9 +291,11 @@ public abstract class World extends Region {
             pane.setCache(true);
             pane.setCacheHint(CacheHint.SCALE);
 
-            scalableContentPane.setMaxSize(width, height);
-            scalableContentPane.setPrefSize(width, height);
-            scalableContentPane.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
+            pane.setScaleX(width / PREFERRED_WIDTH);
+            pane.setScaleY(height / PREFERRED_HEIGHT);
+
+            group.resize(width, height);
+            group.relocate((getWidth() - width) * 0.5, (getHeight() - height) * 0.5);
 
             pane.setCache(false);
         }

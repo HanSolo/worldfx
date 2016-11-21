@@ -85,9 +85,9 @@ public class WorldLowRes extends World {
             }
         }
 
-        scalableContentPane.setContent(pane);
+        group.getChildren().add(pane);
 
-        getChildren().setAll(scalableContentPane);
+        getChildren().setAll(group);
 
         setBackground(new Background(new BackgroundFill(getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY)));
     }
