@@ -291,7 +291,7 @@ public class MainHR extends Application {
         StackPane pane = new StackPane(world);
 
         Scene scene = new Scene(pane);
-        //scene.getStylesheets().add(MainHR.class.getResource("custom-styles.css").toExternalForm());
+        scene.getStylesheets().add(MainHR.class.getResource("custom-styles.css").toExternalForm());
 
         stage.setTitle("World Map (HR)");
         stage.setScene(scene);

@@ -27,7 +27,6 @@ import javafx.css.StyleableObjectProperty;
 import javafx.css.StyleableProperty;
 import javafx.css.StyleablePropertyFactory;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.CacheHint;
 import javafx.scene.Node;
@@ -40,17 +39,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import static javafx.scene.input.MouseEvent.MOUSE_ENTERED;
-import static javafx.scene.input.MouseEvent.MOUSE_EXITED;
-import static javafx.scene.input.MouseEvent.MOUSE_PRESSED;
-import static javafx.scene.input.MouseEvent.MOUSE_RELEASED;
 
 
 /**
@@ -130,7 +123,9 @@ public abstract class World extends Region {
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return PRESSED_COLOR; }
         };
         locationColor        = new StyleableObjectProperty<Color>(LOCATION_COLOR.getInitialValue(this)) {
-            @Override protected void invalidated() { }
+            @Override protected void invalidated() {
+                locations.forEach((location, shape) -> shape.setFill(null == location.getColor() ? get() : location.getColor()));
+            }
             @Override public Object getBean() { return World.this; }
             @Override public String getName() { return "locationColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return LOCATION_COLOR; }
