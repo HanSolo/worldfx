@@ -25,7 +25,7 @@ import org.kordamp.ikonli.Ikon;
  * Created by hansolo on 20.11.16.
  */
 public class Location {
-    private static final double EARTH_RADIUS     = 6_371_000; // [m]
+    private static final double EARTH_RADIUS = 6_371_000; // [m]
     private              String name;
     private              double latitude;
     private              double longitude;
