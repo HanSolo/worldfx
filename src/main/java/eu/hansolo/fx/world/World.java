@@ -40,6 +40,9 @@ import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Shape;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.javafx.FontIcon;
+import org.kordamp.ikonli.materialdesign.MaterialDesign;
 
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +77,7 @@ public abstract class World extends Region {
     private        final StyleableProperty<Color>        locationColor;
     private              double                          width;
     private              double                          height;
+    protected            Ikon                            locationIconCode;
     protected            Pane                            pane;
     protected            ScalableContentPane             scalableContentPane;
     protected            Map<String, List<CountryPath>>  countryPaths;
@@ -133,6 +137,7 @@ public abstract class World extends Region {
         countryPaths         = new HashMap<>();
         locations            = FXCollections.observableHashMap();
 
+        locationIconCode     = MaterialDesign.MDI_CHECKBOX_BLANK_CIRCLE;
         pane                 = new Pane();
         scalableContentPane  = new ScalableContentPane();
 
@@ -205,12 +210,22 @@ public abstract class World extends Region {
     public void setLocationColor(final Color COLOR) { locationColor.setValue(COLOR); }
     public ObjectProperty<Color> locationColorProperty() { return (ObjectProperty<Color>) locationColor; }
 
+    public Ikon getLocationIconCode() { return locationIconCode; }
+    public void setLocationIconCode(final Ikon ICON_CODE) { locationIconCode = ICON_CODE; }
+
     public void addLocation(final Location LOCATION) {
         double x = (LOCATION.getLongitude() + 180) * (PREFERRED_WIDTH / 360) + MAP_OFFSET_X;
         double y = (PREFERRED_HEIGHT / 2) - (PREFERRED_WIDTH * (Math.log(Math.tan((Math.PI / 4) + (Math.toRadians(LOCATION.getLatitude()) / 2)))) / (2 * Math.PI)) + MAP_OFFSET_Y;
 
         Shape locationIcon = new Circle(x, y, 3);
         locationIcon.setFill(null == LOCATION.getColor() ? getLocationColor() : LOCATION.getColor());
+
+        /*
+        FontIcon locationIcon = new FontIcon(null == LOCATION.getIconCode() ? locationIconCode : LOCATION.getIconCode());
+        locationIcon.setIconSize(8);
+        locationIcon.setIconColor(null == LOCATION.getColor() ? getLocationColor() : LOCATION.getColor());
+        locationIcon.relocate(x, y);
+        */
 
         StringBuilder tooltipBuilder = new StringBuilder();
         if (!LOCATION.getName().isEmpty()) tooltipBuilder.append(LOCATION.getName());

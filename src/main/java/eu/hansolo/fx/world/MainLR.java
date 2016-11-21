@@ -73,7 +73,7 @@ public class MainLR extends Application {
         Location MAD = new Location("MAD", 40.483162, -3.579211);
         Location CDG = new Location("CDG", 49.014162, 2.541908);
         Location LHR = new Location("LHR", 51.471125, -0.461951);
-        Location FRA = new Location("FRA", 50.040864, 8.560409, "", Color.LIME);
+        Location FRA = new Location("FRA", 50.040864, 8.560409, Color.LIME);
         Location SVO = new Location("SVO", 55.972401, 37.412537);
         Location DEL = new Location("DEL", 28.555839, 77.100956);
         Location PEK = new Location("PEK", 40.077624, 116.605458);

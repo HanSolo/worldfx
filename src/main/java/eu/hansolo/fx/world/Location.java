@@ -18,6 +18,7 @@ package eu.hansolo.fx.world;
 
 
 import javafx.scene.paint.Color;
+import org.kordamp.ikonli.Ikon;
 
 
 /**
@@ -29,28 +30,45 @@ public class Location {
     private              double latitude;
     private              double longitude;
     private              String info;
-    private              Color color;
+    private              Color  color;
+    private              Ikon   iconCode;
 
 
     // ******************** Constructors **************************************
     public Location() {
-        this("", 0, 0, "", null);
+        this("", 0, 0, "", null, null);
     }
     public Location(final String NAME) {
-        this(NAME, 0, 0, "", null);
+        this(NAME, 0, 0, "", null, null);
     }
     public Location(final double LATITUDE, final double LONGITUDE) {
-        this("", LATITUDE, LONGITUDE, "", null);
+        this("", LATITUDE, LONGITUDE, "", null, null);
+    }
+    public Location(final double LATITUDE, final double LONGITUDE, final Ikon ICON_CODE) {
+        this("", LATITUDE, LONGITUDE, "", null, ICON_CODE);
+    }
+    public Location(final double LATITUDE, final double LONGITUDE, final Color COLOR ,final Ikon ICON_CODE) {
+        this("", LATITUDE, LONGITUDE, "", COLOR, ICON_CODE);
     }
     public Location(final String NAME, final double LATITUDE, final double LONGITUDE) {
-        this(NAME, LATITUDE, LONGITUDE, "", null);
+        this(NAME, LATITUDE, LONGITUDE, "", null, null);
     }
-    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final String INFO, final Color COLOR) {
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Ikon ICON_CODE) {
+        this(NAME, LATITUDE, LONGITUDE, "", null, ICON_CODE);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Color COLOR) {
+        this(NAME, LATITUDE, LONGITUDE, "", COLOR, null);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Color COLOR, final Ikon ICON_CODE) {
+        this(NAME, LATITUDE, LONGITUDE, "", COLOR, ICON_CODE);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final String INFO, final Color COLOR, final Ikon ICON_CODE) {
         name      = NAME;
         latitude  = LATITUDE;
         longitude = LONGITUDE;
         info      = INFO;
         color     = COLOR;
+        iconCode  = ICON_CODE;
     }
 
 
@@ -69,6 +87,9 @@ public class Location {
 
     public Color getColor() { return color; }
     public void setColor(final Color COLOR) { color = COLOR; }
+
+    public Ikon getIconCode() { return iconCode; }
+    public void setIconCode(final Ikon ICON_CODE) { iconCode = ICON_CODE; }
 
     public double getDistanceTo(final Location LOCATION) { return calcDistanceInMeter(this, LOCATION); }
 

@@ -28,6 +28,7 @@ import javafx.geometry.Dimension2D;
 import javafx.geometry.Insets;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
+import org.kordamp.ikonli.Ikon;
 
 import java.util.HashMap;
 
@@ -114,10 +115,10 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
         return (B)this;
     }
 
-    //public final B locationIcon(final Ikon ICON) {
-    //    properties.put("locationIcon", new SimpleObjectProperty<>(ICON));
-    //    return (B)this;
-    //}
+    public final B locationIconCode(final Ikon ICON_CODE) {
+        properties.put("locationIconCode", new SimpleObjectProperty<>(ICON_CODE));
+        return (B)this;
+    }
 
     public final B prefSize(final double WIDTH, final double HEIGHT) {
         properties.put("prefSize", new SimpleObjectProperty<>(new Dimension2D(WIDTH, HEIGHT)));
@@ -259,8 +260,8 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
                 CONTROL.addLocations(((ObjectProperty<Location[]>) properties.get(key)).get());
             } else if ("showLocations".equals(key)) {
                 CONTROL.showLocations(((BooleanProperty) properties.get(key)).get());
-            } else if ("locationIcon".equals(key)) {
-                //CONTROL.setLocationIcon(((ObjectProperty<Ikon>) properties.get(key)).get());
+            } else if ("locationIconCode".equals(key)) {
+                CONTROL.setLocationIconCode(((ObjectProperty<Ikon>) properties.get(key)).get());
             }
         }
         return CONTROL;
