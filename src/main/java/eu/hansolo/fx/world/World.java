@@ -221,17 +221,21 @@ public abstract class World extends Region {
         double y = (PREFERRED_HEIGHT / 2) - (PREFERRED_WIDTH * (Math.log(Math.tan((Math.PI / 4) + (Math.toRadians(LOCATION.getLatitude()) / 2)))) / (2 * Math.PI)) + MAP_OFFSET_Y;
 
         FontIcon locationIcon = new FontIcon(null == LOCATION.getIconCode() ? locationIconCode : LOCATION.getIconCode());
-        locationIcon.setFont(Font.font(10));
+        //locationIcon.setFont(Font.font(LOCATION.getIconSize()));
+        locationIcon.setIconSize(LOCATION.getIconSize());
         locationIcon.setTextOrigin(VPos.CENTER);
         locationIcon.setIconColor(null == LOCATION.getColor() ? getLocationColor() : LOCATION.getColor());
-        locationIcon.setX(x - locationIcon.getFont().getSize() * 0.5);
+        locationIcon.setX(x - LOCATION.getIconSize() * 0.5);
         locationIcon.setY(y);
 
         StringBuilder tooltipBuilder = new StringBuilder();
         if (!LOCATION.getName().isEmpty()) tooltipBuilder.append(LOCATION.getName());
         if (!LOCATION.getInfo().isEmpty()) tooltipBuilder.append("\n").append(LOCATION.getInfo());
         String tooltipText = tooltipBuilder.toString();
-        if (!tooltipText.isEmpty()) { Tooltip.install(locationIcon, new Tooltip(tooltipText)); }
+        if (!tooltipText.isEmpty()) {
+            Tooltip tooltip = new Tooltip(tooltipText);
+            Tooltip.install(locationIcon, new Tooltip(tooltipText));
+        }
 
         locations.put(LOCATION, locationIcon);
     }

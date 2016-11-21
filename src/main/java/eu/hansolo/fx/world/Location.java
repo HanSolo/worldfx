@@ -25,50 +25,80 @@ import org.kordamp.ikonli.Ikon;
  * Created by hansolo on 20.11.16.
  */
 public class Location {
-    private static final double EARTH_RADIUS = 6_371_000; // [m]
+    private static final double EARTH_RADIUS      = 6_371_000; // [m]
+    private static final int    DEFAULT_ICON_SIZE = 12;
     private              String name;
     private              double latitude;
     private              double longitude;
     private              String info;
     private              Color  color;
     private              Ikon   iconCode;
+    private              int    iconSize;
 
 
     // ******************** Constructors **************************************
     public Location() {
-        this("", 0, 0, "", null, null);
+        this("", 0, 0, "", null, null, DEFAULT_ICON_SIZE);
     }
     public Location(final String NAME) {
-        this(NAME, 0, 0, "", null, null);
+        this(NAME, 0, 0, "", null, null, DEFAULT_ICON_SIZE);
+    }
+    public Location(final String NAME, final int ICON_SIZE) {
+        this(NAME, 0, 0, "", null, null, ICON_SIZE);
     }
     public Location(final double LATITUDE, final double LONGITUDE) {
-        this("", LATITUDE, LONGITUDE, "", null, null);
+        this("", LATITUDE, LONGITUDE, "", null, null, DEFAULT_ICON_SIZE);
+    }
+    public Location(final double LATITUDE, final double LONGITUDE, final int ICON_SIZE) {
+        this("", LATITUDE, LONGITUDE, "", null, null, ICON_SIZE);
     }
     public Location(final double LATITUDE, final double LONGITUDE, final Ikon ICON_CODE) {
-        this("", LATITUDE, LONGITUDE, "", null, ICON_CODE);
+        this("", LATITUDE, LONGITUDE, "", null, ICON_CODE, DEFAULT_ICON_SIZE);
+    }
+    public Location(final double LATITUDE, final double LONGITUDE, final Ikon ICON_CODE, final int ICON_SIZE) {
+        this("", LATITUDE, LONGITUDE, "", null, ICON_CODE, ICON_SIZE);
     }
     public Location(final double LATITUDE, final double LONGITUDE, final Color COLOR ,final Ikon ICON_CODE) {
-        this("", LATITUDE, LONGITUDE, "", COLOR, ICON_CODE);
+        this("", LATITUDE, LONGITUDE, "", COLOR, ICON_CODE, DEFAULT_ICON_SIZE);
+    }
+    public Location(final double LATITUDE, final double LONGITUDE, final Color COLOR ,final Ikon ICON_CODE, final int ICON_SIZE) {
+        this("", LATITUDE, LONGITUDE, "", COLOR, ICON_CODE, ICON_SIZE);
     }
     public Location(final String NAME, final double LATITUDE, final double LONGITUDE) {
-        this(NAME, LATITUDE, LONGITUDE, "", null, null);
+        this(NAME, LATITUDE, LONGITUDE, "", null, null, DEFAULT_ICON_SIZE);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final int ICON_SIZE) {
+        this(NAME, LATITUDE, LONGITUDE, "", null, null, ICON_SIZE);
     }
     public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Ikon ICON_CODE) {
-        this(NAME, LATITUDE, LONGITUDE, "", null, ICON_CODE);
+        this(NAME, LATITUDE, LONGITUDE, "", null, ICON_CODE, DEFAULT_ICON_SIZE);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Ikon ICON_CODE, final int ICON_SIZE) {
+        this(NAME, LATITUDE, LONGITUDE, "", null, ICON_CODE, ICON_SIZE);
     }
     public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Color COLOR) {
-        this(NAME, LATITUDE, LONGITUDE, "", COLOR, null);
+        this(NAME, LATITUDE, LONGITUDE, "", COLOR, null, DEFAULT_ICON_SIZE);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Color COLOR, final int ICON_SIZE) {
+        this(NAME, LATITUDE, LONGITUDE, "", COLOR, null, ICON_SIZE);
     }
     public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Color COLOR, final Ikon ICON_CODE) {
-        this(NAME, LATITUDE, LONGITUDE, "", COLOR, ICON_CODE);
+        this(NAME, LATITUDE, LONGITUDE, "", COLOR, ICON_CODE, DEFAULT_ICON_SIZE);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final Color COLOR, final Ikon ICON_CODE, final int ICON_SIZE) {
+        this(NAME, LATITUDE, LONGITUDE, "", COLOR, ICON_CODE, ICON_SIZE);
     }
     public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final String INFO, final Color COLOR, final Ikon ICON_CODE) {
+        this(NAME, LATITUDE, LONGITUDE, INFO, COLOR, ICON_CODE, DEFAULT_ICON_SIZE);
+    }
+    public Location(final String NAME, final double LATITUDE, final double LONGITUDE, final String INFO, final Color COLOR, final Ikon ICON_CODE, final int ICON_SIZE) {
         name      = NAME;
         latitude  = LATITUDE;
         longitude = LONGITUDE;
         info      = INFO;
         color     = COLOR;
         iconCode  = ICON_CODE;
+        iconSize  = ICON_SIZE;
     }
 
 
@@ -91,6 +121,9 @@ public class Location {
     public Ikon getIconCode() { return iconCode; }
     public void setIconCode(final Ikon ICON_CODE) { iconCode = ICON_CODE; }
 
+    public int getIconSize() { return iconSize; }
+    public void setIconSize(final int SIZE) { iconSize = clamp(6, 24, SIZE); }
+
     public double getDistanceTo(final Location LOCATION) { return calcDistanceInMeter(this, LOCATION); }
 
     public double calcDistanceInMeter(final Location P1, final Location P2) {
@@ -111,5 +144,11 @@ public class Location {
         final double DISTANCE = EARTH_RADIUS * C;
 
         return DISTANCE;
+    }
+
+    private int clamp(final int MIN_VALUE, final int MAX_VALUE, final int VALUE) {
+        if (VALUE < MIN_VALUE) return MIN_VALUE;
+        if (VALUE > MAX_VALUE) return MAX_VALUE;
+        return VALUE;
     }
 }
