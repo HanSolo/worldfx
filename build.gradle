@@ -17,6 +17,7 @@ dependencies {
     compile 'org.kordamp.ikonli:ikonli-material-pack:1.8.0'
     compile 'org.kordamp.ikonli:ikonli-materialdesign-pack:1.8.0'
     compile 'org.kordamp.ikonli:ikonli-fontawesome-pack:1.8.0'
+    compile 'eu.mihosoft.jfx.scaledfx:scaledfx:0.4'
 }
 
 mainClassName = 'eu.hansolo.fx.world.Main'

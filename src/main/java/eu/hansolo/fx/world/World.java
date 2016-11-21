@@ -42,9 +42,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
-import org.kordamp.ikonli.Ikon;
-import org.kordamp.ikonli.javafx.FontIcon;
-import org.kordamp.ikonli.materialdesign.MaterialDesign;
+import eu.mihosoft.scaledfx.ScalableContentPane;
+
 
 import java.util.HashMap;
 import java.util.List;
