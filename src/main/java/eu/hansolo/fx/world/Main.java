@@ -16,7 +16,7 @@
 
 package eu.hansolo.fx.world;
 
-import eu.hansolo.fx.world.WorldTmp.Resolution;
+import eu.hansolo.fx.world.World.Resolution;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.layout.StackPane;
@@ -36,7 +36,7 @@ import java.util.MissingResourceException;
  * Time: 13:37
  */
 public class Main extends Application {
-    private WorldTmp world;
+    private World world;
 
     @Override public void init() {
         world = WorldBuilder.create()

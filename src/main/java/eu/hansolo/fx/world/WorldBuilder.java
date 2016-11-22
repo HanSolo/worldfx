@@ -16,7 +16,7 @@
 
 package eu.hansolo.fx.world;
 
-import eu.hansolo.fx.world.WorldTmp.Resolution;
+import eu.hansolo.fx.world.World.Resolution;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -206,8 +206,8 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
         return (B)this;
     }
 
-    public final WorldTmp build() {
-        final WorldTmp CONTROL = new WorldTmp(resolution);
+    public final World build() {
+        final World CONTROL = new World(resolution);
 
         for (String key : properties.keySet()) {
             if ("prefSize".equals(key)) {
