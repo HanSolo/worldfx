@@ -85,6 +85,16 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
         return (B)this;
     }
 
+    public final B selectionEnabled(final boolean ENABLED) {
+        properties.put("selectionEnabled", new SimpleBooleanProperty(ENABLED));
+        return (B)this;
+    }
+
+    public final B zoomEnabled(final boolean ENABLED) {
+        properties.put("zoomEnabled", new SimpleBooleanProperty(ENABLED));
+        return (B)this;
+    }
+
     public final B mouseEnterHandler(final EventHandler<MouseEvent> HANDLER) {
         properties.put("mouseEnterHandler", new SimpleObjectProperty(HANDLER));
         return (B)this;
@@ -248,6 +258,10 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
                 CONTROL.setPressedColor(((ObjectProperty<Color>) properties.get(key)).get());
             } else if ("locationColor".equals(key)) {
                 CONTROL.setLocationColor(((ObjectProperty<Color>) properties.get(key)).get());
+            } else if ("selectionEnabled".equals(key)) {
+                CONTROL.setSelectionEnabled(((BooleanProperty) properties.get(key)).get());
+            } else if ("zoomEnabled".equals(key)) {
+                CONTROL.setZoomEnabled(((BooleanProperty) properties.get(key)).get());
             } else if ("mouseEnterHandler".equals(key)) {
                 CONTROL.setMouseEnterHandler(((ObjectProperty<EventHandler<MouseEvent>>) properties.get(key)).get());
             } else if ("mousePressHandler".equals(key)) {

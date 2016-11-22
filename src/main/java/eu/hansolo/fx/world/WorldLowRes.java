@@ -75,7 +75,7 @@ public class WorldLowRes extends World {
             countryPaths.put(country.name(), paths);
 
             for(CountryPath path : paths) {
-                path.setFill(fill);
+                path.setFill(null == country.getColor() ? fill : country.getColor());
                 path.setStroke(stroke);
                 path.setStrokeWidth(0.5);
                 path.setOnMouseEntered(_mouseEnterHandler);
@@ -95,16 +95,34 @@ public class WorldLowRes extends World {
     protected void handleMouseEvent(final MouseEvent EVENT, final EventHandler<MouseEvent> HANDLER) {
         final CountryPath COUNTRY_PATH = (CountryPath) EVENT.getSource();
         final String      COUNTRY_NAME = COUNTRY_PATH.getName();
+        final Country     COUNTRY      = CountryLowRes.valueOf(COUNTRY_NAME);
 
         final EventType TYPE = EVENT.getEventType();
         if (MOUSE_ENTERED == TYPE) {
-            for (SVGPath path : CountryLowRes.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
+            if (isSelectionEnabled() && COUNTRY.equals(getSelectedCountry())) {
+                for (SVGPath path : COUNTRY.getPaths()) { path.setFill(getSelectedColor()); }
+            } else {
+                for (SVGPath path : COUNTRY.getPaths()) { path.setFill(getHoverColor()); }
+            }
         } else if (MOUSE_PRESSED == TYPE) {
-            for (SVGPath path : CountryLowRes.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getPressedColor()); }
+            if (isSelectionEnabled() && null != getSelectedCountry()) {
+                for (SVGPath path : CountryHighRes.valueOf(getSelectedCountry().getName()).getPaths()) { path.setFill(getFillColor()); }
+            } else {
+                for (SVGPath path : COUNTRY.getPaths()) { path.setFill(getPressedColor()); }
+            }
         } else if (MOUSE_RELEASED == TYPE) {
-            for (SVGPath path : CountryLowRes.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getHoverColor()); }
+            if (isSelectionEnabled()) {
+                setSelectedCountry(COUNTRY);
+                for (SVGPath path : COUNTRY.getPaths()) { path.setFill(getSelectedColor()); }
+            } else {
+                for (SVGPath path : COUNTRY.getPaths()) { path.setFill(getHoverColor()); }
+            }
         } else if (MOUSE_EXITED == TYPE) {
-            for (SVGPath path : CountryLowRes.valueOf(COUNTRY_NAME).getPaths()) { path.setFill(getFillColor()); }
+            if (isSelectionEnabled() && COUNTRY.equals(getSelectedCountry())) {
+                for (SVGPath path : COUNTRY.getPaths()) { path.setFill(getSelectedColor()); }
+            } else {
+                for (SVGPath path : COUNTRY.getPaths()) { path.setFill(getFillColor()); }
+            }
         }
 
         if (null != HANDLER) HANDLER.handle(EVENT);
@@ -113,7 +131,7 @@ public class WorldLowRes extends World {
     protected void setFillAndStroke() {
         for (CountryLowRes country : CountryLowRes.values()) {
             for (CountryPath path : country.getPaths()) {
-                path.setFill(getFillColor());
+                path.setFill(null == country.getColor() ? getFillColor() : country.getColor());
                 path.setStroke(getStrokeColor());
             }
         }

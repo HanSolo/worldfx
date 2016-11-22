@@ -16,6 +16,8 @@
 
 package eu.hansolo.fx.world;
 
+import javafx.scene.paint.Color;
+
 import java.util.List;
 
 
@@ -23,8 +25,13 @@ import java.util.List;
  * Created by hansolo on 19.11.16.
  */
 public interface Country {
+    String getName();
+
     List<CountryPath> getPaths();
 
     ValueObject getValue();
     void setValue(final ValueObject VALUE);
+
+    Color getColor();
+    void setColor(final Color COLOR);
 }

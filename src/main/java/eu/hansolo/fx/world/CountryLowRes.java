@@ -16,6 +16,7 @@
 
 package eu.hansolo.fx.world;
 
+import javafx.scene.paint.Color;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -203,6 +204,7 @@ public enum CountryLowRes implements Country {
 
     private final List<CountryPath> COUNTRY_PATHS;
     private       ValueObject       value;
+    private       Color             color;
 
 
     CountryLowRes(final String... PATH_STRINGS) {
@@ -213,11 +215,17 @@ public enum CountryLowRes implements Country {
             COUNTRY_PATHS.add(countryPath);
         }
         value = null;
+        color = null;
     }
 
+
+    @Override public String getName() { return name(); }
 
     @Override public List<CountryPath> getPaths() { return COUNTRY_PATHS; }
 
     @Override public ValueObject getValue() { return value; }
     @Override public void setValue(final ValueObject VALUE) { value = VALUE; }
+
+    @Override public Color getColor() { return color; }
+    @Override public void setColor(final Color COLOR) { color = COLOR; }
 }

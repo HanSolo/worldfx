@@ -17,7 +17,12 @@
 package eu.hansolo.fx.world;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.BooleanPropertyBase;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.DoublePropertyBase;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ObjectPropertyBase;
 import javafx.collections.FXCollections;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
@@ -35,6 +40,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundFill;
 import javafx.scene.layout.CornerRadii;
@@ -75,22 +81,31 @@ public abstract class World extends Region {
     private        final StyleableProperty<Color>        hoverColor;
     private static final CssMetaData<World, Color>       PRESSED_COLOR    = FACTORY.createColorCssMetaData("-pressed-color", s -> s.pressedColor, Color.web("#789dff"), false);
     private        final StyleableProperty<Color>        pressedColor;
+    private static final CssMetaData<World, Color>       SELECTED_COLOR   = FACTORY.createColorCssMetaData("-selected-color", s-> s.selectedColor, Color.web("#9dff78"), false);
+    private        final StyleableProperty<Color>        selectedColor;
     private static final CssMetaData<World, Color>       LOCATION_COLOR   = FACTORY.createColorCssMetaData("-location-color", s -> s.locationColor, Color.web("#ff0000"), false);
-    private        final StyleableProperty<Color>       locationColor;
-    private              double                         width;
-    private              double                         height;
-    protected            Ikon                           locationIconCode;
-    protected            Pane                           pane;
-    protected            Group                          group;
-    protected            Map<String, List<CountryPath>> countryPaths;
-    protected            ObservableMap<Location, Shape> locations;
+    private        final StyleableProperty<Color>        locationColor;
+    private              BooleanProperty                 selectionEnabled;
+    private              ObjectProperty<Country>         selectedCountry;
+    private              BooleanProperty                 zoomEnabled;
+    private              DoubleProperty                  scaleFactor;
+    private              double                          zoomSceneX;
+    private              double                          zoomSceneY;
+    private              double                          width;
+    private              double                          height;
+    protected            Ikon                            locationIconCode;
+    protected            Pane                            pane;
+    protected            Group                           group;
+    protected            Map<String, List<CountryPath>>  countryPaths;
+    protected            ObservableMap<Location, Shape>  locations;
     // internal event handlers
-    protected            EventHandler<MouseEvent>       _mouseEnterHandler;
-    protected            EventHandler<MouseEvent>       _mousePressHandler;
-    protected            EventHandler<MouseEvent>       _mouseReleaseHandler;
-    protected            EventHandler<MouseEvent>       _mouseExitHandler;
+    protected            EventHandler<MouseEvent>        _mouseEnterHandler;
+    protected            EventHandler<MouseEvent>        _mousePressHandler;
+    protected            EventHandler<MouseEvent>        _mouseReleaseHandler;
+    protected            EventHandler<MouseEvent>        _mouseExitHandler;
+    private              EventHandler<ScrollEvent>       _scrollEventHandler;
     // exposed event handlers
-    private              EventHandler<MouseEvent>       mouseEnterHandler;
+    private              EventHandler<MouseEvent>        mouseEnterHandler;
     private              EventHandler<MouseEvent>        mousePressHandler;
     private              EventHandler<MouseEvent>        mouseReleaseHandler;
     private              EventHandler<MouseEvent>        mouseExitHandler;
@@ -128,6 +143,12 @@ public abstract class World extends Region {
             @Override public String getName() { return "pressedColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return PRESSED_COLOR; }
         };
+        selectedColor        = new StyleableObjectProperty<Color>(SELECTED_COLOR.getInitialValue(this)) {
+            @Override protected void invalidated() { }
+            @Override public Object getBean() { return World.this; }
+            @Override public String getName() { return "selectedColor"; }
+            @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return SELECTED_COLOR; }
+        };
         locationColor        = new StyleableObjectProperty<Color>(LOCATION_COLOR.getInitialValue(this)) {
             @Override protected void invalidated() {
                 locations.forEach((location, shape) -> shape.setFill(null == location.getColor() ? get() : location.getColor()));
@@ -136,18 +157,68 @@ public abstract class World extends Region {
             @Override public String getName() { return "locationColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return LOCATION_COLOR; }
         };
+        selectionEnabled     = new BooleanPropertyBase(false) {
+            @Override protected void invalidated() {}
+            @Override public Object getBean() { return World.this; }
+            @Override public String getName() { return "selectionEnabled"; }
+        };
+        selectedCountry      = new ObjectPropertyBase<Country>() {
+            @Override protected void invalidated() {}
+            @Override public Object getBean() { return World.this; }
+            @Override public String getName() { return "selectedCountry"; }
+        };
+        zoomEnabled          = new BooleanPropertyBase(false) {
+            @Override protected void invalidated() {
+                if (null == getScene()) return;
+                if (get()) {
+                    getScene().addEventFilter(ScrollEvent.ANY, _scrollEventHandler);
+                } else {
+                    getScene().removeEventFilter(ScrollEvent.ANY, _scrollEventHandler);
+                }
+            }
+            @Override public Object getBean() { return World.this; }
+            @Override public String getName() { return "zoomEnabled"; }
+        };
+        scaleFactor          = new DoublePropertyBase(1.0) {
+            @Override protected void invalidated() {
+                if (isZoomEnabled()) {
+                    setScaleX(scaleFactor.get());
+                    setScaleY(scaleFactor.get());
+                }
+            }
+            @Override public Object getBean() { return World.this; }
+            @Override public String getName() { return "scaleFactor"; }
+        };
         countryPaths         = new HashMap<>();
         locations            = FXCollections.observableHashMap();
 
         locationIconCode     = MaterialDesign.MDI_CHECKBOX_BLANK_CIRCLE;
         pane                 = new Pane();
-        //group  = new ScalableContentPane();
-        group = new Group();
+        group                = new Group();
 
         _mouseEnterHandler   = evt -> handleMouseEvent(evt, mouseEnterHandler);
         _mousePressHandler   = evt -> handleMouseEvent(evt, mousePressHandler);
         _mouseReleaseHandler = evt -> handleMouseEvent(evt, mouseReleaseHandler);
         _mouseExitHandler    = evt -> handleMouseEvent(evt, mouseExitHandler);
+        _scrollEventHandler  = evt -> {
+            double delta    = 1.5;
+            double scale    = getScaleFactor();
+            double oldScale = scale;
+            scale           = evt.getDeltaY() < 0 ? scale / delta : scale * delta;
+            scale           = clamp( 1, 10, scale);
+            double factor   = (scale / oldScale) - 1;
+            if (Double.compare(1.0, getScaleFactor()) == 0) {
+                zoomSceneX = evt.getSceneX();
+                zoomSceneY = evt.getSceneY();
+                resetZoom();
+            }
+            double deltaX = (zoomSceneX - (getBoundsInParent().getWidth() / 2 + getBoundsInParent().getMinX()));
+            double deltaY = (zoomSceneY - (getBoundsInParent().getHeight() / 2 + getBoundsInParent().getMinY()));
+            setScaleFactor(scale);
+            setPivot(deltaX * factor, deltaY * factor);
+
+            evt.consume();
+        };
 
         initGraphics();
         registerListeners();
@@ -163,7 +234,10 @@ public abstract class World extends Region {
         locations.addListener(new MapChangeListener<Location, Shape>() {
             @Override public void onChanged(final Change<? extends Location, ? extends Shape> CHANGE) {
                 if (CHANGE.wasAdded()) {
-                    sceneProperty().addListener(o -> addShapeToScene(CHANGE.getValueAdded()));
+                    sceneProperty().addListener(o -> {
+                        addShapeToScene(CHANGE.getValueAdded());
+                        if (isZoomEnabled()) { getScene().addEventFilter( ScrollEvent.ANY, _scrollEventHandler); }
+                    });
                     addShapeToScene(CHANGE.getValueAdded());
                 } else if(CHANGE.wasRemoved()) {
                     Platform.runLater(() -> pane.getChildren().remove(CHANGE.getValueRemoved()));
@@ -210,9 +284,35 @@ public abstract class World extends Region {
     public void setPressedColor(final Color COLOR) { pressedColor.setValue(COLOR); }
     public ObjectProperty<Color> pressedColorProperty() { return (ObjectProperty<Color>) pressedColor; }
 
+    public Color getSelectedColor() { return selectedColor.getValue(); }
+    public void setSelectedColor(final Color COLOR) { selectedColor.setValue(COLOR); }
+    public ObjectProperty<Color> selectedColorProperty() { return (ObjectProperty<Color>) selectedColor; }
+
     public Color getLocationColor() { return locationColor.getValue(); }
     public void setLocationColor(final Color COLOR) { locationColor.setValue(COLOR); }
     public ObjectProperty<Color> locationColorProperty() { return (ObjectProperty<Color>) locationColor; }
+
+    public boolean isSelectionEnabled() { return selectionEnabled.get(); }
+    public void setSelectionEnabled(final boolean ENABLED) { selectionEnabled.set(ENABLED); }
+    public BooleanProperty selectionEnabledProperty() { return selectionEnabled; }
+
+    public Country getSelectedCountry() { return selectedCountry.get(); }
+    public void setSelectedCountry(final Country COUNTRY) { selectedCountry.set(COUNTRY); }
+    public ObjectProperty<Country> selectedCountryProperty() { return selectedCountry; }
+
+    public boolean isZoomEnabled() { return zoomEnabled.get(); }
+    public void setZoomEnabled(final boolean ENABLED) { zoomEnabled.set(ENABLED); }
+    public BooleanProperty zoomEnabledProperty() { return zoomEnabled; }
+
+    public double getScaleFactor() { return scaleFactor.get(); }
+    public void setScaleFactor(final double FACTOR) { scaleFactor.set(FACTOR); }
+    public DoubleProperty scaleFactorProperty() { return scaleFactor; }
+
+    public void resetZoom() {
+        setScaleFactor(1.0);
+        setTranslateX(0);
+        setTranslateY(0);
+    }
 
     public Ikon getLocationIconCode() { return locationIconCode; }
     public void setLocationIconCode(final Ikon ICON_CODE) { locationIconCode = ICON_CODE; }
@@ -256,14 +356,25 @@ public abstract class World extends Region {
         }
     }
 
-    private void addShapeToScene(final Shape SHAPE) {
-        if (null == getScene()) return;
-        Platform.runLater(() -> pane.getChildren().add(SHAPE));
+    protected void setPivot(final double X, final double Y) {
+        setTranslateX(getTranslateX() - X);
+        setTranslateY(getTranslateY() - Y);
     }
 
     protected abstract void handleMouseEvent(final MouseEvent EVENT, final EventHandler<MouseEvent> HANDLER);
 
     protected abstract void setFillAndStroke();
+
+    private void addShapeToScene(final Shape SHAPE) {
+        if (null == getScene()) return;
+        Platform.runLater(() -> pane.getChildren().add(SHAPE));
+    }
+
+    private double clamp(final double MIN, final double MAX, final double VALUE) {
+        if (VALUE < MIN) return MIN;
+        if (VALUE > MAX) return MAX;
+        return VALUE;
+    }
 
 
     // ******************** Style related *************************************
