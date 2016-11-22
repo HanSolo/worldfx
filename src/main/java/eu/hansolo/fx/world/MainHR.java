@@ -47,6 +47,7 @@ public class MainHR extends Application {
                             .hoverColor(Color.web("#fec47e"))
                             .pressedColor(Color.web("#6cee85"))
                             .locationColor(Color.web("#0000ff"))
+                            .selectedColor(Color.MAGENTA)
                             .locations(new Location("SFO", 37.619751, -122.374366),
                                        new Location("YYC", 51.128148, -114.010791),
                                        new Location("ORD", 41.975806, -87.905294),
@@ -69,7 +70,7 @@ public class MainHR extends Application {
                                 System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
                                 System.out.println(CountryHighRes.valueOf(countryPath.getName()).getValue() + " million people");
                             })
-                            .zoomEnabled(false)
+                            .zoomEnabled(true)
                             .selectionEnabled(true)
                             .locationIconCode(MaterialDesign.MDI_STAR)
                             .build();

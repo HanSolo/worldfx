@@ -80,6 +80,11 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
         return (B)this;
     }
 
+    public final B selectedColor(final Color COLOR) {
+        properties.put("selectedColor", new SimpleObjectProperty(COLOR));
+        return (B)this;
+    }
+
     public final B locationColor(final Color COLOR) {
         properties.put("locationColor", new SimpleObjectProperty<>(COLOR));
         return (B)this;
@@ -256,6 +261,8 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
                 CONTROL.setHoverColor(((ObjectProperty<Color>) properties.get(key)).get());
             } else if ("pressedColor".equals(key)) {
                 CONTROL.setPressedColor(((ObjectProperty<Color>) properties.get(key)).get());
+            } else if ("selectedColor".equals(key)) {
+                CONTROL.setSelectedColor(((ObjectProperty<Color>) properties.get(key)).get());
             } else if ("locationColor".equals(key)) {
                 CONTROL.setLocationColor(((ObjectProperty<Color>) properties.get(key)).get());
             } else if ("selectionEnabled".equals(key)) {

@@ -144,7 +144,7 @@ public abstract class World extends Region {
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return PRESSED_COLOR; }
         };
         selectedColor        = new StyleableObjectProperty<Color>(SELECTED_COLOR.getInitialValue(this)) {
-            @Override protected void invalidated() { }
+            @Override protected void invalidated() {}
             @Override public Object getBean() { return World.this; }
             @Override public String getName() { return "selectedColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return SELECTED_COLOR; }
