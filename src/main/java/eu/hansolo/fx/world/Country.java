@@ -52,17 +52,18 @@ public enum Country {
     YE, YT,
     ZA, ZM, ZW;
 
+    private ValueObject value;
+    private Color       color;
 
-    private       ValueObject       value;
-    private       Color             color;
 
-
+    // ******************** Constructors **************************************
     Country() {
         value = null;
         color = null;
     }
 
 
+    // ******************** Methods *******************************************
     public String getName() { return name(); }
 
     public ValueObject getValue() { return value; }
