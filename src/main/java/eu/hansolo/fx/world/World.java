@@ -38,6 +38,7 @@ import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Point3D;
 import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
@@ -423,22 +424,22 @@ public class World extends Region {
 
     // TODO: Make it work :)
     public void zoomOnCountry(final Country COUNTRY) {
-        double upperLeftX = 0;
-        double upperLeftY = 0;
+        double upperLeftX  = 0;
+        double upperLeftY  = 0;
         double lowerRightX = PREFERRED_WIDTH;
         double lowerRightY = PREFERRED_HEIGHT;
         List<CountryPath> paths = countryPaths.get(COUNTRY.getName());
         for (int i = 0 ; i < paths.size() ; i++) {
             CountryPath path   = paths.get(i);
-            Bounds      bounds = path.getBoundsInLocal();
-            upperLeftX = bounds.getMinX();
-            upperLeftY = bounds.getMinY();
+            Bounds      bounds = path.getLayoutBounds();
+            upperLeftX  = bounds.getMinX();
+            upperLeftY  = bounds.getMinY();
             lowerRightX = bounds.getMaxX();
             lowerRightY = bounds.getMaxY();
         }
-        Point2D pivot = localToScreen((lowerRightX - upperLeftX) * 0.5, (lowerRightY - upperLeftY) * 0.5);
-        setPivot(pivot.getX(), pivot.getY());
-        setScaleFactor(10);
+
+        //setScaleFactor(10);
+        //setPivot((lowerRightX - upperLeftX) * 0.5, (lowerRightY - upperLeftY) * 0.5);
     }
 
 

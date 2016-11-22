@@ -299,13 +299,13 @@ public class Main extends Application {
         StackPane pane = new StackPane(world);
 
         Scene scene = new Scene(pane);
-        //scene.getStylesheets().add(MainHR.class.getResource("custom-styles.css").toExternalForm());
+        //scene.getStylesheets().add(Main.class.getResource("custom-styles.css").toExternalForm());
 
         stage.setTitle("World Map (HR)");
         stage.setScene(scene);
         stage.show();
 
-        //world.zoomOnCountry(CountryTmp.US);
+        //world.zoomOnCountry(Country.US);
     }
 
     @Override public void stop() {
