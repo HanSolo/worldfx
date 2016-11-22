@@ -16,6 +16,7 @@
 
 package eu.hansolo.fx.world;
 
+import eu.hansolo.fx.world.WorldTmp.Resolution;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
@@ -32,15 +33,13 @@ import org.kordamp.ikonli.Ikon;
 
 import java.util.HashMap;
 
-import static eu.hansolo.fx.world.WorldBuilder.Resolution.HIGH_RES;
-
 
 /**
  * Created by hansolo on 21.11.16.
  */
 public class WorldBuilder<B extends WorldBuilder<B>> {
-    public enum Resolution { HIGH_RES, LOW_RES }
     private HashMap<String, Property> properties = new HashMap<>();
+    private Resolution                resolution = Resolution.HI_RES;
 
 
     // ******************** Constructors **************************************
@@ -51,7 +50,7 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
     public static final WorldBuilder create() { return new WorldBuilder(); }
 
     public final B resolution(final Resolution RESOLUTION) {
-        properties.put("resolution", new SimpleObjectProperty(RESOLUTION));
+        resolution = RESOLUTION;
         return (B)this;
     }
 
@@ -207,13 +206,8 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
         return (B)this;
     }
 
-    public final World build() {
-        final World CONTROL;
-        if (properties.keySet().contains("resolution")) {
-            CONTROL = HIGH_RES == ((ObjectProperty<Resolution>) properties.get("resolution")).get() ? new WorldHighRes() : new WorldLowRes();
-        } else {
-            CONTROL = new WorldHighRes();
-        }
+    public final WorldTmp build() {
+        final WorldTmp CONTROL = new WorldTmp(resolution);
 
         for (String key : properties.keySet()) {
             if ("prefSize".equals(key)) {

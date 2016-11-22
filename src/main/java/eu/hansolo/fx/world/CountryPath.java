@@ -33,11 +33,16 @@ public class CountryPath extends SVGPath {
 
     // ******************** Constructors **************************************
     public CountryPath(final String NAME) {
+        this(NAME, null);
+    }
+    public CountryPath(final String NAME, final String CONTENT) {
         super();
         this.NAME    = NAME;
         this.LOCALE  = new Locale("", NAME);
         this.TOOLTIP = new Tooltip(LOCALE.getDisplayCountry());
         Tooltip.install(this, TOOLTIP);
+        if (null == CONTENT) return;
+        setContent(CONTENT);
     }
 
 
