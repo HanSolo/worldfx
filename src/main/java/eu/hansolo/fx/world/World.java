@@ -455,30 +455,33 @@ public class World extends Region {
 
         final EventType TYPE = EVENT.getEventType();
         if (MOUSE_ENTERED == TYPE) {
-            if (isSelectionEnabled() && COUNTRY.equals(getSelectedCountry())) {
-                for (SVGPath path : PATHS) { path.setFill(getSelectedColor()); }
-            } else {
-                for (SVGPath path : PATHS) { path.setFill(getHoverColor()); }
-            }
+            Color color = isSelectionEnabled() && COUNTRY.equals(getSelectedCountry()) ? getSelectedColor() : getHoverColor();
+            for (SVGPath path : PATHS) { path.setFill(color); }
         } else if (MOUSE_PRESSED == TYPE) {
-            if (isSelectionEnabled() && null != getSelectedCountry()) {
-                for (SVGPath path : countryPaths.get(getSelectedCountry().getName())) { path.setFill(getFillColor()); }
+            if (isSelectionEnabled()) {
+                Color color;
+                if (null == getSelectedCountry()) {
+                    setSelectedCountry(COUNTRY);
+                    color = getSelectedColor();
+                } else {
+                    color = getFillColor();
+                }
+                for (SVGPath path : countryPaths.get(getSelectedCountry().getName())) { path.setFill(color); }
             } else {
                 for (SVGPath path : PATHS) { path.setFill(getPressedColor()); }
             }
         } else if (MOUSE_RELEASED == TYPE) {
+            Color color;
             if (isSelectionEnabled()) {
                 setSelectedCountry(COUNTRY);
-                for (SVGPath path : PATHS) { path.setFill(getSelectedColor()); }
+                color = getSelectedColor();
             } else {
-                for (SVGPath path : PATHS) { path.setFill(getHoverColor()); }
+                color = getHoverColor();
             }
+            for (SVGPath path : PATHS) { path.setFill(color); }
         } else if (MOUSE_EXITED == TYPE) {
-            if (isSelectionEnabled() && COUNTRY.equals(getSelectedCountry())) {
-                for (SVGPath path : PATHS) { path.setFill(getSelectedColor()); }
-            } else {
-                for (SVGPath path : PATHS) { path.setFill(getFillColor()); }
-            }
+            Color color = isSelectionEnabled() && COUNTRY.equals(getSelectedCountry()) ? getSelectedColor() : getFillColor();
+            for (SVGPath path : PATHS) { path.setFill(color); }
         }
 
         if (null != HANDLER) HANDLER.handle(EVENT);
