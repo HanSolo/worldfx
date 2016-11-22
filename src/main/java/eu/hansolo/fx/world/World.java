@@ -48,6 +48,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
@@ -335,8 +336,14 @@ public abstract class World extends Region {
         String tooltipText = tooltipBuilder.toString();
         if (!tooltipText.isEmpty()) {
             Tooltip tooltip = new Tooltip(tooltipText);
-            Tooltip.install(locationIcon, new Tooltip(tooltipText));
+            tooltip.setFont(Font.font(10));
+            Tooltip.install(locationIcon, tooltip);
         }
+
+        if (null != LOCATION.getMouseEnterHandler()) locationIcon.setOnMouseEntered(LOCATION.getMouseEnterHandler());
+        if (null != LOCATION.getMousePressHandler()) locationIcon.setOnMousePressed(LOCATION.getMousePressHandler());
+        if (null != LOCATION.getMouseReleaseHandler()) locationIcon.setOnMouseReleased(LOCATION.getMouseReleaseHandler());
+        if (null != LOCATION.getMouseExitHandler()) locationIcon.setOnMouseReleased(LOCATION.getMouseReleaseHandler());
 
         locations.put(LOCATION, locationIcon);
     }

@@ -17,6 +17,8 @@
 package eu.hansolo.fx.world;
 
 
+import javafx.event.EventHandler;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import org.kordamp.ikonli.Ikon;
 
@@ -25,15 +27,19 @@ import org.kordamp.ikonli.Ikon;
  * Created by hansolo on 20.11.16.
  */
 public class Location {
-    private static final double EARTH_RADIUS      = 6_371_000; // [m]
-    private static final int    DEFAULT_ICON_SIZE = 12;
-    private              String name;
-    private              double latitude;
-    private              double longitude;
-    private              String info;
-    private              Color  color;
-    private              Ikon   iconCode;
-    private              int    iconSize;
+    private static final double                   EARTH_RADIUS      = 6_371_000; // [m]
+    private static final int                      DEFAULT_ICON_SIZE = 12;
+    private              String                   name;
+    private              double                   latitude;
+    private              double                   longitude;
+    private              String                   info;
+    private              Color                    color;
+    private              Ikon                     iconCode;
+    private              int                      iconSize;
+    private              EventHandler<MouseEvent> mouseEnterHandler;
+    private              EventHandler<MouseEvent> mousePressHandler;
+    private              EventHandler<MouseEvent> mouseReleaseHandler;
+    private              EventHandler<MouseEvent> mouseExitHandler;
 
 
     // ******************** Constructors **************************************
@@ -123,6 +129,18 @@ public class Location {
 
     public int getIconSize() { return iconSize; }
     public void setIconSize(final int SIZE) { iconSize = clamp(6, 24, SIZE); }
+
+    public EventHandler<MouseEvent> getMouseEnterHandler() { return mouseEnterHandler; }
+    public void setMouseEnterHandler(final EventHandler<MouseEvent> HANDLER) { mouseEnterHandler = HANDLER; }
+
+    public EventHandler<MouseEvent> getMousePressHandler() { return mousePressHandler; }
+    public void setMousePressHandler(final EventHandler<MouseEvent> HANDLER) { mousePressHandler = HANDLER; }
+
+    public EventHandler<MouseEvent> getMouseReleaseHandler() { return mouseReleaseHandler; }
+    public void setMouseReleaseHandler(final EventHandler<MouseEvent> HANDLER) { mouseReleaseHandler = HANDLER;  }
+
+    public EventHandler<MouseEvent> getMouseExitHandler() { return mouseExitHandler; }
+    public void setMouseExitHandler(final EventHandler<MouseEvent> HANDLER) { mouseExitHandler = HANDLER; }
 
     public double getDistanceTo(final Location LOCATION) { return calcDistanceInMeter(this, LOCATION); }
 

@@ -18,7 +18,9 @@ package eu.hansolo.fx.world;
 
 import eu.hansolo.fx.world.WorldBuilder.Resolution;
 import javafx.application.Application;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -48,6 +50,7 @@ public class MainHR extends Application {
                             .pressedColor(Color.web("#6cee85"))
                             .locationColor(Color.web("#0000ff"))
                             .selectedColor(Color.MAGENTA)
+                            .locationIconCode(MaterialDesign.MDI_STAR)
                             .locations(new Location("SFO", 37.619751, -122.374366),
                                        new Location("YYC", 51.128148, -114.010791),
                                        new Location("ORD", 41.975806, -87.905294),
@@ -58,7 +61,11 @@ public class MainHR extends Application {
                                        new Location("MAD", 40.483162, -3.579211),
                                        new Location("CDG", 49.014162, 2.541908),
                                        new Location("LHR", 51.471125, -0.461951),
-                                       new Location("FRA", 50.040864, 8.560409, Color.RED, MaterialDesign.MDI_HEART),
+                                       LocationBuilder.create()
+                                                      .name("FRA").latitude(50.040864).longitude(8.560409)
+                                                      .color(Color.CYAN).iconCode(MaterialDesign.MDI_HEART)
+                                                      .mousePressHandler(e -> System.out.println("Frankfurt Airport"))
+                                                      .build(),
                                        new Location("SVO", 55.972401, 37.412537),
                                        new Location("DEL", 28.555839, 77.100956),
                                        new Location("PEK", 40.077624, 116.605458),
@@ -72,9 +79,7 @@ public class MainHR extends Application {
                             })
                             .zoomEnabled(true)
                             .selectionEnabled(true)
-                            .locationIconCode(MaterialDesign.MDI_STAR)
                             .build();
-
 
         // Population per country in 2016
         Map<String, Double> data = new HashMap<>();
