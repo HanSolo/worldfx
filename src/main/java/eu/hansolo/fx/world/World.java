@@ -37,6 +37,7 @@ import javafx.event.EventHandler;
 import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
+import javafx.geometry.Orientation;
 import javafx.geometry.Point2D;
 import javafx.geometry.Point3D;
 import javafx.geometry.VPos;
@@ -52,9 +53,12 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
+import javafx.scene.transform.Scale;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
@@ -209,8 +213,8 @@ public class World extends Region {
         scaleFactor          = new DoublePropertyBase(1.0) {
             @Override protected void invalidated() {
                 if (isZoomEnabled()) {
-                    setScaleX(scaleFactor.get());
-                    setScaleY(scaleFactor.get());
+                    setScaleX(get());
+                    setScaleY(get());
                 }
             }
             @Override public Object getBean() { return World.this; }
@@ -228,13 +232,14 @@ public class World extends Region {
         _mouseReleaseHandler = evt -> handleMouseEvent(evt, mouseReleaseHandler);
         _mouseExitHandler    = evt -> handleMouseEvent(evt, mouseExitHandler);
         _scrollEventHandler  = evt -> {
-            double delta    = 1.5;
+            if (group.getTranslateX() != 0 || group.getTranslateY() != 0) { resetZoom(); }
+            double delta    = 1.2;
             double scale    = getScaleFactor();
             double oldScale = scale;
             scale           = evt.getDeltaY() < 0 ? scale / delta : scale * delta;
             scale           = clamp( 1, 10, scale);
             double factor   = (scale / oldScale) - 1;
-            if (Double.compare(1.0, getScaleFactor()) == 0) {
+            if (Double.compare(1, getScaleFactor()) == 0) {
                 zoomSceneX = evt.getSceneX();
                 zoomSceneY = evt.getSceneY();
                 resetZoom();
@@ -372,6 +377,8 @@ public class World extends Region {
         setScaleFactor(1.0);
         setTranslateX(0);
         setTranslateY(0);
+        group.setTranslateX(0);
+        group.setTranslateY(0);
     }
 
     public Ikon getLocationIconCode() { return locationIconCode; }
@@ -421,25 +428,48 @@ public class World extends Region {
         }
     }
 
-
-    // TODO: Make it work :)
     public void zoomOnCountry(final Country COUNTRY) {
-        double upperLeftX  = 0;
-        double upperLeftY  = 0;
-        double lowerRightX = PREFERRED_WIDTH;
-        double lowerRightY = PREFERRED_HEIGHT;
+        if (!isZoomEnabled()) return;
+        setSelectedCountry(COUNTRY);
+        double upperLeftX  = PREFERRED_WIDTH;
+        double upperLeftY  = PREFERRED_HEIGHT;
+        double lowerRightX = 0;
+        double lowerRightY = 0;
         List<CountryPath> paths = countryPaths.get(COUNTRY.getName());
         for (int i = 0 ; i < paths.size() ; i++) {
             CountryPath path   = paths.get(i);
             Bounds      bounds = path.getLayoutBounds();
-            upperLeftX  = bounds.getMinX();
-            upperLeftY  = bounds.getMinY();
-            lowerRightX = bounds.getMaxX();
-            lowerRightY = bounds.getMaxY();
+            upperLeftX  = Math.min(bounds.getMinX(), upperLeftX);
+            upperLeftY  = Math.min(bounds.getMinY(), upperLeftY);
+            lowerRightX = Math.max(bounds.getMaxX(), lowerRightX);
+            lowerRightY = Math.max(bounds.getMaxY(), lowerRightY);
+            path.setFill(getSelectedColor());
         }
-
-        //setScaleFactor(10);
-        //setPivot((lowerRightX - upperLeftX) * 0.5, (lowerRightY - upperLeftY) * 0.5);
+        double countryWidth   = lowerRightX - upperLeftX;
+        double countryHeight  = lowerRightY - upperLeftY;
+        double countryCenterX = upperLeftX + countryWidth * 0.5;
+        double countryCenterY = upperLeftY + countryHeight * 0.5;
+        Orientation orientation = countryWidth < countryHeight ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+        double sf = 1.0;
+        switch(orientation) {
+            case VERTICAL:
+                sf = clamp(1.0, 10.0, 1 / (countryHeight / height));
+                break;
+            case HORIZONTAL:
+                sf = clamp(1.0, 10.0, 1 / (countryWidth / width));
+                break;
+        }
+        /*
+        Rectangle bounds = new Rectangle(upperLeftX, upperLeftY, countryWidth, countryHeight);
+        bounds.setFill(Color.TRANSPARENT);
+        bounds.setStroke(Color.RED);
+        bounds.setStrokeWidth(0.5);
+        bounds.setMouseTransparent(true);
+        group.getChildren().add(bounds);
+        */
+        setScaleFactor(sf);
+        group.setTranslateX(width * 0.5 - (countryCenterX));
+        group.setTranslateY(height * 0.5 - (countryCenterY));
     }
 
 
@@ -557,6 +587,8 @@ public class World extends Region {
         }
 
         if (width > 0 && height > 0) {
+            if (isZoomEnabled()) resetZoom();
+
             pane.setCache(true);
             pane.setCacheHint(CacheHint.SCALE);
 

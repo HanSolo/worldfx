@@ -18,7 +18,11 @@ package eu.hansolo.fx.world;
 
 import eu.hansolo.fx.world.World.Resolution;
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundFill;
+import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -297,15 +301,16 @@ public class Main extends Application {
 
     @Override public void start(Stage stage) {
         StackPane pane = new StackPane(world);
+        pane.setBackground(new Background(new BackgroundFill(world.getBackgroundColor(), CornerRadii.EMPTY, Insets.EMPTY)));
 
         Scene scene = new Scene(pane);
         //scene.getStylesheets().add(Main.class.getResource("custom-styles.css").toExternalForm());
 
-        stage.setTitle("World Map (HR)");
+        stage.setTitle("World Map");
         stage.setScene(scene);
         stage.show();
 
-        //world.zoomOnCountry(Country.US);
+        //world.zoomOnCountry(Country.DE);
     }
 
     @Override public void stop() {
