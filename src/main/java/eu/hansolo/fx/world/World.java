@@ -258,7 +258,7 @@ public class World extends Region {
 
 
     // ******************** Initialization ************************************
-    protected void initGraphics() {
+    private void initGraphics() {
         if (Double.compare(getPrefWidth(), 0.0) <= 0 || Double.compare(getPrefHeight(), 0.0) <= 0 ||
             Double.compare(getWidth(), 0.0) <= 0 || Double.compare(getHeight(), 0.0) <= 0) {
             if (getPrefWidth() > 0 && getPrefHeight() > 0) {
@@ -430,6 +430,11 @@ public class World extends Region {
 
     public void zoomOnCountry(final Country COUNTRY) {
         if (!isZoomEnabled()) return;
+        group.setTranslateX(0);
+        group.setTranslateY(0);
+        if (null != getSelectedCountry()) {
+            setCountryFillAndStroke(getSelectedCountry(), getFillColor(), getStrokeColor());
+        }
         setSelectedCountry(COUNTRY);
         double upperLeftX  = PREFERRED_WIDTH;
         double upperLeftY  = PREFERRED_HEIGHT;
@@ -472,13 +477,12 @@ public class World extends Region {
         group.setTranslateY(height * 0.5 - (countryCenterY));
     }
 
-
-    protected void setPivot(final double X, final double Y) {
+    private void setPivot(final double X, final double Y) {
         setTranslateX(getTranslateX() - X);
         setTranslateY(getTranslateY() - Y);
     }
 
-    protected void handleMouseEvent(final MouseEvent EVENT, final EventHandler<MouseEvent> HANDLER) {
+    private void handleMouseEvent(final MouseEvent EVENT, final EventHandler<MouseEvent> HANDLER) {
         final CountryPath       COUNTRY_PATH = (CountryPath) EVENT.getSource();
         final String            COUNTRY_NAME = COUNTRY_PATH.getName();
         final Country           COUNTRY      = Country.valueOf(COUNTRY_NAME);
@@ -518,14 +522,18 @@ public class World extends Region {
         if (null != HANDLER) HANDLER.handle(EVENT);
     }
 
-    protected void setFillAndStroke() {
-        countryPaths.forEach((name, pathList) -> {
+    private void setFillAndStroke() {
+        countryPaths.keySet().forEach(name -> {
             Country country = Country.valueOf(name);
-            pathList.forEach(path -> {
-                path.setFill(null == country.getColor() ? getFillColor() : country.getColor());
-                path.setStroke(getStrokeColor());
-            });
+            setCountryFillAndStroke(country, null == country.getColor() ? getFillColor() : country.getColor(), getStrokeColor());
         });
+    }
+    private void setCountryFillAndStroke(final Country COUNTRY, final Color FILL, final Color STROKE) {
+        List<CountryPath> paths = countryPaths.get(COUNTRY.getName());
+        for (CountryPath path : paths) {
+            path.setFill(FILL);
+            path.setStroke(STROKE);
+        }
     }
 
     private void addShapesToScene(final Shape... SHAPES) {
