@@ -26,6 +26,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
 
 import java.util.HashMap;
@@ -45,13 +46,13 @@ public class Main extends Application {
     @Override public void init() {
         world = WorldBuilder.create()
                             .resolution(Resolution.HI_RES)
-                            .backgroundColor(Color.web("#4aa9d7"))
-                            .fillColor(Color.web("#dcb36c"))
-                            .strokeColor(Color.web("#987028"))
-                            .hoverColor(Color.web("#fec47e"))
-                            .pressedColor(Color.web("#6cee85"))
-                            .locationColor(Color.web("#0000ff"))
-                            .selectedColor(Color.MAGENTA)
+                            //.backgroundColor(Color.web("#4aa9d7"))
+                            //.fillColor(Color.web("#dcb36c"))
+                            //.strokeColor(Color.web("#987028"))
+                            //.hoverColor(Color.web("#fec47e"))
+                            //.pressedColor(Color.web("#6cee85"))
+                            //.locationColor(Color.web("#0000ff"))
+                            //.selectedColor(Color.MAGENTA)
                             .locationIconCode(MaterialDesign.MDI_STAR)
                             .locations(new Location("SFO", 37.619751, -122.374366),
                                        new Location("YYC", 51.128148, -114.010791),
@@ -65,8 +66,15 @@ public class Main extends Application {
                                        new Location("LHR", 51.471125, -0.461951),
                                        LocationBuilder.create()
                                                       .name("FRA").latitude(50.040864).longitude(8.560409)
-                                                      .color(Color.CYAN).iconCode(MaterialDesign.MDI_HEART)
-                                                      .mousePressHandler(e -> System.out.println("Frankfurt Airport"))
+                                                      .color(Color.CRIMSON)
+                                                      .iconCode(MaterialDesign.MDI_HEART)
+                                                      .mouseEnterHandler(e -> ((FontIcon) e.getSource()).setFill(Color.RED))
+                                                      .mousePressHandler(e -> {
+                                                          System.out.println("Frankfurt Airport");
+                                                          ((FontIcon) e.getSource()).setFill(Color.MAGENTA);
+                                                      })
+                                                      .mouseReleaseHandler(e -> ((FontIcon) e.getSource()).setFill(Color.RED))
+                                                      .mouseExitHandler(e -> ((FontIcon) e.getSource()).setFill(Color.CRIMSON))
                                                       .build(),
                                        new Location("SVO", 55.972401, 37.412537),
                                        new Location("DEL", 28.555839, 77.100956),

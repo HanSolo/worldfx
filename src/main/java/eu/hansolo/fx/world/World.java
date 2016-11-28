@@ -35,6 +35,7 @@ import javafx.css.StyleableProperty;
 import javafx.css.StyleablePropertyFactory;
 import javafx.event.EventHandler;
 import javafx.event.EventType;
+import javafx.event.WeakEventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -279,10 +280,10 @@ public class World extends Region {
                 path.setFill(null == country.getColor() ? fill : country.getColor());
                 path.setStroke(stroke);
                 path.setStrokeWidth(0.2);
-                path.setOnMouseEntered(_mouseEnterHandler);
-                path.setOnMousePressed(_mousePressHandler);
-                path.setOnMouseReleased(_mouseReleaseHandler);
-                path.setOnMouseExited(_mouseExitHandler);
+                path.setOnMouseEntered(new WeakEventHandler<>(_mouseEnterHandler));
+                path.setOnMousePressed(new WeakEventHandler<>(_mousePressHandler));
+                path.setOnMouseReleased(new WeakEventHandler<>(_mouseReleaseHandler));
+                path.setOnMouseExited(new WeakEventHandler<>(_mouseExitHandler));
             });
             pane.getChildren().addAll(pathList);
         });
@@ -408,7 +409,7 @@ public class World extends Region {
         if (null != LOCATION.getMouseEnterHandler()) locationIcon.setOnMouseEntered(LOCATION.getMouseEnterHandler());
         if (null != LOCATION.getMousePressHandler()) locationIcon.setOnMousePressed(LOCATION.getMousePressHandler());
         if (null != LOCATION.getMouseReleaseHandler()) locationIcon.setOnMouseReleased(LOCATION.getMouseReleaseHandler());
-        if (null != LOCATION.getMouseExitHandler()) locationIcon.setOnMouseReleased(LOCATION.getMouseReleaseHandler());
+        if (null != LOCATION.getMouseExitHandler()) locationIcon.setOnMouseExited(LOCATION.getMouseExitHandler());
 
         locations.put(LOCATION, locationIcon);
     }
