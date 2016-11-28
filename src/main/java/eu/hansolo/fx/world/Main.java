@@ -68,12 +68,12 @@ public class Main extends Application {
                                                       .name("FRA").latitude(50.040864).longitude(8.560409)
                                                       .color(Color.CRIMSON)
                                                       .iconCode(MaterialDesign.MDI_HEART)
-                                                      .mouseEnterHandler(e -> ((FontIcon) e.getSource()).setFill(Color.RED))
+                                                      .mouseEnterHandler(e -> ((FontIcon) e.getSource()).setFill(Color.CYAN))
                                                       .mousePressHandler(e -> {
                                                           System.out.println("Frankfurt Airport");
                                                           ((FontIcon) e.getSource()).setFill(Color.MAGENTA);
                                                       })
-                                                      .mouseReleaseHandler(e -> ((FontIcon) e.getSource()).setFill(Color.RED))
+                                                      .mouseReleaseHandler(e -> ((FontIcon) e.getSource()).setFill(Color.CYAN))
                                                       .mouseExitHandler(e -> ((FontIcon) e.getSource()).setFill(Color.CRIMSON))
                                                       .build(),
                                        new Location("SVO", 55.972401, 37.412537),

@@ -406,10 +406,10 @@ public class World extends Region {
             Tooltip.install(locationIcon, tooltip);
         }
 
-        if (null != LOCATION.getMouseEnterHandler()) locationIcon.setOnMouseEntered(LOCATION.getMouseEnterHandler());
-        if (null != LOCATION.getMousePressHandler()) locationIcon.setOnMousePressed(LOCATION.getMousePressHandler());
-        if (null != LOCATION.getMouseReleaseHandler()) locationIcon.setOnMouseReleased(LOCATION.getMouseReleaseHandler());
-        if (null != LOCATION.getMouseExitHandler()) locationIcon.setOnMouseExited(LOCATION.getMouseExitHandler());
+        if (null != LOCATION.getMouseEnterHandler()) locationIcon.setOnMouseEntered(new WeakEventHandler<>(LOCATION.getMouseEnterHandler()));
+        if (null != LOCATION.getMousePressHandler()) locationIcon.setOnMousePressed(new WeakEventHandler<>(LOCATION.getMousePressHandler()));
+        if (null != LOCATION.getMouseReleaseHandler()) locationIcon.setOnMouseReleased(new WeakEventHandler<>(LOCATION.getMouseReleaseHandler()));
+        if (null != LOCATION.getMouseExitHandler()) locationIcon.setOnMouseExited(new WeakEventHandler<>(LOCATION.getMouseExitHandler()));
 
         locations.put(LOCATION, locationIcon);
     }
