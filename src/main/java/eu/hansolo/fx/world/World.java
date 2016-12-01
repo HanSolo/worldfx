@@ -472,22 +472,16 @@ public class World extends Region {
         Orientation orientation = areaWidth < areaHeight ? Orientation.VERTICAL : Orientation.HORIZONTAL;
         double sf = 1.0;
         switch(orientation) {
-            case VERTICAL:
-                sf = clamp(1.0, 10.0, 1 / (areaHeight / height));
-                break;
-            case HORIZONTAL:
-                sf = clamp(1.0, 10.0, 1 / (areaWidth / width));
-                break;
+            case VERTICAL  : sf = clamp(1.0, 10.0, 1 / (areaHeight / height)); break;
+            case HORIZONTAL: sf = clamp(1.0, 10.0, 1 / (areaWidth / width)); break;
         }
 
-
-        Rectangle bounds = new Rectangle(BOUNDS[0], BOUNDS[1], BOUNDS[2], BOUNDS[3]);
+        Rectangle bounds = new Rectangle(BOUNDS[0], BOUNDS[1], areaWidth, areaHeight);
         bounds.setFill(Color.TRANSPARENT);
         bounds.setStroke(Color.RED);
         bounds.setStrokeWidth(0.5);
         bounds.setMouseTransparent(true);
         group.getChildren().add(bounds);
-
 
         setScaleFactor(sf);
         group.setTranslateX(width * 0.5 - (areaCenterX));
