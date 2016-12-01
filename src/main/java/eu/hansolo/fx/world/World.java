@@ -437,14 +437,13 @@ public class World extends Region {
         for (CRegion region : REGIONS) { setRegion(region); }
     }
 
-    public void zoomOnCountry(final Country COUNTRY) {
+    public void zoomToCountry(final Country COUNTRY) {
         if (!isZoomEnabled()) return;
         group.setTranslateX(0);
         group.setTranslateY(0);
         if (null != getSelectedCountry()) {
             setCountryFillAndStroke(getSelectedCountry(), getFillColor(), getStrokeColor());
         }
-        setSelectedCountry(COUNTRY);
         double upperLeftX  = PREFERRED_WIDTH;
         double upperLeftY  = PREFERRED_HEIGHT;
         double lowerRightX = 0;
@@ -457,7 +456,6 @@ public class World extends Region {
             upperLeftY  = Math.min(bounds.getMinY(), upperLeftY);
             lowerRightX = Math.max(bounds.getMaxX(), lowerRightX);
             lowerRightY = Math.max(bounds.getMaxY(), lowerRightY);
-            path.setFill(getSelectedColor());
         }
         double countryWidth   = lowerRightX - upperLeftX;
         double countryHeight  = lowerRightY - upperLeftY;
@@ -473,17 +471,50 @@ public class World extends Region {
                 sf = clamp(1.0, 10.0, 1 / (countryWidth / width));
                 break;
         }
-        /*
-        Rectangle bounds = new Rectangle(upperLeftX, upperLeftY, countryWidth, countryHeight);
-        bounds.setFill(Color.TRANSPARENT);
-        bounds.setStroke(Color.RED);
-        bounds.setStrokeWidth(0.5);
-        bounds.setMouseTransparent(true);
-        group.getChildren().add(bounds);
-        */
         setScaleFactor(sf);
         group.setTranslateX(width * 0.5 - (countryCenterX));
         group.setTranslateY(height * 0.5 - (countryCenterY));
+    }
+
+    public void zoomToRegion(final CRegion REGION) {
+        if (!isZoomEnabled()) return;
+        group.setTranslateX(0);
+        group.setTranslateY(0);
+        if (null != getSelectedCountry()) {
+            setCountryFillAndStroke(getSelectedCountry(), getFillColor(), getStrokeColor());
+        }
+        double upperLeftX  = PREFERRED_WIDTH;
+        double upperLeftY  = PREFERRED_HEIGHT;
+        double lowerRightX = 0;
+        double lowerRightY = 0;
+        for (Country country : REGION.getCountries()) {
+            List<CountryPath> paths = countryPaths.get(country.getName());
+            for (int i = 0; i < paths.size(); i++) {
+                CountryPath path   = paths.get(i);
+                Bounds      bounds = path.getLayoutBounds();
+                upperLeftX = Math.min(bounds.getMinX(), upperLeftX);
+                upperLeftY = Math.min(bounds.getMinY(), upperLeftY);
+                lowerRightX = Math.max(bounds.getMaxX(), lowerRightX);
+                lowerRightY = Math.max(bounds.getMaxY(), lowerRightY);
+            }
+        }
+        double regionWidth   = lowerRightX - upperLeftX;
+        double regionHeight  = lowerRightY - upperLeftY;
+        double regionCenterX = upperLeftX + regionWidth * 0.5;
+        double regionCenterY = upperLeftY + regionHeight * 0.5;
+        Orientation orientation = regionWidth < regionHeight ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+        double sf = 1.0;
+        switch(orientation) {
+            case VERTICAL:
+                sf = clamp(1.0, 10.0, 1 / (regionHeight / height));
+                break;
+            case HORIZONTAL:
+                sf = clamp(1.0, 10.0, 1 / (regionWidth / width));
+                break;
+        }
+        setScaleFactor(sf);
+        group.setTranslateX(width * 0.5 - (regionCenterX));
+        group.setTranslateY(height * 0.5 - (regionCenterY));
     }
 
     private void setPivot(final double X, final double Y) {

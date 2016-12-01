@@ -46,14 +46,15 @@ import static eu.hansolo.fx.world.Country.PL;
  * Time: 13:37
  */
 public class Main extends Application {
-    private static final Random RND = new Random();
-    private              World  world;
+    private static final Random        RND = new Random();
+    private              World         world;
+    private              CountryRegion europeanUnion;
 
 
     @Override public void init() {
-        CountryRegion EU = new CountryRegion("EU", BE, GR, LT, PT, BG, ES, LU, RO, CZ, FR, HU, SI, DK, HR, MT, SK, DE, IT, NL, FI, EE, CY, AT, SE, IE, LV, PL, GB);
-        //EU.setColor(Color.LIGHTBLUE);
-        for (Country country : EU.getCountries()) {
+        europeanUnion = new CountryRegion("EU", BE, GR, LT, PT, BG, ES, LU, RO, CZ, FR, HU, SI, DK, HR, MT, SK, DE, IT, NL, FI, EE, CY, AT, SE, IE, LV, PL, GB);
+        //europeanUnion.setColor(Color.LIGHTBLUE);
+        for (Country country : europeanUnion.getCountries()) {
             country.setColor(Color.rgb(RND.nextInt(127) + 100, 0, RND.nextInt(127) + 128));
         }
 
@@ -103,7 +104,7 @@ public class Main extends Application {
                                 System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
                                 System.out.println(Country.valueOf(countryPath.getName()).getValue() + " million people");
                             })
-                            .region(EU)
+                            .region(europeanUnion)
                             .zoomEnabled(true)
                             .selectionEnabled(true)
                             .build();
@@ -337,7 +338,8 @@ public class Main extends Application {
         stage.setScene(scene);
         stage.show();
 
-        //world.zoomOnCountry(Country.DE);
+        //world.zoomToCountry(Country.DE);
+        world.zoomToRegion(europeanUnion);
     }
 
     @Override public void stop() {
