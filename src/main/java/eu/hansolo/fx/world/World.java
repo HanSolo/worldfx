@@ -476,12 +476,14 @@ public class World extends Region {
             case HORIZONTAL: sf = clamp(1.0, 10.0, 1 / (areaWidth / width)); break;
         }
 
+        /*
         Rectangle bounds = new Rectangle(BOUNDS[0], BOUNDS[1], areaWidth, areaHeight);
         bounds.setFill(Color.TRANSPARENT);
         bounds.setStroke(Color.RED);
         bounds.setStrokeWidth(0.5);
         bounds.setMouseTransparent(true);
         group.getChildren().add(bounds);
+        */
 
         setScaleFactor(sf);
         group.setTranslateX(width * 0.5 - (areaCenterX));

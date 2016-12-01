@@ -58,7 +58,8 @@ public class Main extends Application {
         //    country.setColor(Color.rgb(RND.nextInt(127) + 100, 0, RND.nextInt(127) + 128));
         //}
 
-        BusinessRegion.APAC.setColor(Color.LIGHTSALMON);
+        BusinessRegion.EU.setColor(Color.rgb(124, 208, 255));
+        //BusinessRegion.APAC.setColor(Color.LIGHTSALMON);
 
         world = WorldBuilder.create()
                             .resolution(Resolution.HI_RES)
@@ -336,7 +337,7 @@ public class Main extends Application {
 
         //world.zoomToCountry(Country.DE);
         //world.zoomToRegion(europeanUnion);
-        world.zoomToRegion(BusinessRegion.BRICS);
+        world.zoomToRegion(BusinessRegion.EU);
     }
 
     @Override public void stop() {
