@@ -28,7 +28,8 @@ import static eu.hansolo.fx.world.Country.*;
  */
 public enum BusinessRegion implements CRegion {
     AMERICAS(AI, AG, AR, AW, BS, BB, BZ, BM, BO, BR, CA, KY, CL, CO, CR, CU, DM, DO, EC, SV, GF, GD, GP, GT, GY, HT, HN, JM, MQ, MX, MS, NI, PA, PY, PE, PR, BL, KN, LC, MF, PM, VC, SR, TT, TC, US, UY, VE, VG, VI),
-    APAC(BN, KH, TL, ID, MY, MM, PH, SG, TH, VN, CN, HK, MO, JP, MN, KP, KR, TW, AS, PF, PN, WS, TO, TV, WF, AU, CX, CC, NF, NZ, CK, NU, TK, FJ, NC, PG, SB, VU, FM, GU, KI, MH, NR, MP, PW, BD, BT, IO, IN, MV, NP, PK, LK, LA),
+    APAC(AS, AU, BD, BN, BT, CC, CK, CN, CX, FJ, FM, GU, HK, ID, IN, IO, JP, KH, KI, KP, KR, LA, LK, MH, MM, MN, MO, MP, MV, MY, NC, NF, NP, NR, NU, NZ, PF, PG, PH, PK, PN, PW, SB, SG, TH, TK, TL, TO, TV, TW, VN, VU, WF, WS),
+    APJC(AS, AU, BD, BN, BT, CC, CK, CN, CX, FJ, FM, GU, HK, HM, ID, IN, IO, JP, KH, KI, KP, KR, LA, LK, MH, MM, MN, MO, MP, MV, MY, NC, NF, NP, NR, NU, NZ, PF, PG, PH, PN, PW, SB, SG, TH, TK, TL, TO, TV, TW, VN, VU, WS),
     ANZ(AU, NZ),
     BENELUX(BE, NL, LU),
     BRICS(RU, BR, CN, IN, ZA),
