@@ -39,8 +39,6 @@ import javafx.event.WeakEventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
-import javafx.geometry.Point2D;
-import javafx.geometry.Point3D;
 import javafx.geometry.VPos;
 import javafx.scene.CacheHint;
 import javafx.scene.Group;
@@ -54,12 +52,9 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Line;
-import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
-import javafx.scene.transform.Scale;
 import org.kordamp.ikonli.Ikon;
 import org.kordamp.ikonli.javafx.FontIcon;
 import org.kordamp.ikonli.materialdesign.MaterialDesign;
@@ -117,6 +112,7 @@ public class World extends Region {
     private              BooleanProperty                 zoomEnabled;
     private              DoubleProperty                  scaleFactor;
     private              Properties                      resolutionProperties;
+    private              Country                         formerSelectedCountry;
     private              double                          zoomSceneX;
     private              double                          zoomSceneY;
     private              double                          width;
@@ -300,7 +296,7 @@ public class World extends Region {
         heightProperty().addListener(o -> resize());
         sceneProperty().addListener(o -> {
             if (!locations.isEmpty()) { addShapesToScene(locations.values()); }
-            if (isZoomEnabled()) { getScene().addEventFilter( ScrollEvent.ANY, _scrollEventHandler); }
+            if (isZoomEnabled()) { getScene().addEventFilter( ScrollEvent.ANY, new WeakEventHandler<>(_scrollEventHandler)); }
 
             locations.addListener((MapChangeListener<Location, Shape>) CHANGE -> {
                 if (CHANGE.wasAdded()) {
@@ -429,6 +425,18 @@ public class World extends Region {
         }
     }
 
+    public void setRegion(final CRegion REGION) {
+        for (Country country : REGION.getCountries()) {
+            for (CountryPath countryPath : getCountryPaths().get(country.getName())) {
+                countryPath.setFill(country.getColor());
+            }
+        }
+    }
+
+    public void setRegions(final CRegion... REGIONS) {
+        for (CRegion region : REGIONS) { setRegion(region); }
+    }
+
     public void zoomOnCountry(final Country COUNTRY) {
         if (!isZoomEnabled()) return;
         group.setTranslateX(0);
@@ -500,7 +508,7 @@ public class World extends Region {
                     setSelectedCountry(COUNTRY);
                     color = getSelectedColor();
                 } else {
-                    color = getFillColor();
+                    color = null == getSelectedCountry().getColor() ? getFillColor() : getSelectedCountry().getColor();
                 }
                 for (SVGPath path : countryPaths.get(getSelectedCountry().getName())) { path.setFill(color); }
             } else {
@@ -509,15 +517,23 @@ public class World extends Region {
         } else if (MOUSE_RELEASED == TYPE) {
             Color color;
             if (isSelectionEnabled()) {
-                setSelectedCountry(COUNTRY);
-                color = getSelectedColor();
+                if (formerSelectedCountry == COUNTRY) {
+                    setSelectedCountry(null);
+                    color = null == COUNTRY.getColor() ? getFillColor() : COUNTRY.getColor();
+                } else {
+                    setSelectedCountry(COUNTRY);
+                    color = getSelectedColor();
+                }
+                formerSelectedCountry = getSelectedCountry();
             } else {
                 color = getHoverColor();
             }
             for (SVGPath path : PATHS) { path.setFill(color); }
         } else if (MOUSE_EXITED == TYPE) {
             Color color = isSelectionEnabled() && COUNTRY.equals(getSelectedCountry()) ? getSelectedColor() : getFillColor();
-            for (SVGPath path : PATHS) { path.setFill(color); }
+            for (SVGPath path : PATHS) {
+                path.setFill(null == COUNTRY.getColor() || COUNTRY == getSelectedCountry() ? color : COUNTRY.getColor());
+            }
         }
 
         if (null != HANDLER) HANDLER.handle(EVENT);

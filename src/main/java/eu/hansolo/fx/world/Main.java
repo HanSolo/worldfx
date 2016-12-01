@@ -33,6 +33,11 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.MissingResourceException;
+import java.util.Random;
+
+import static eu.hansolo.fx.world.Country.*;
+import static eu.hansolo.fx.world.Country.GB;
+import static eu.hansolo.fx.world.Country.PL;
 
 
 /**
@@ -44,6 +49,16 @@ public class Main extends Application {
     private World world;
 
     @Override public void init() {
+        CountryRegion EU = new CountryRegion("EU", BE, GR, LT, PT, BG, ES, LU, RO, CZ, FR, HU, SI, DK, HR, MT, SK, DE, IT, NL, FI, EE, CY, AT, SE, IE, LV, PL, GB);
+        for (Country country : EU.getCountries()) {
+            country.setColor(Color.LIGHTBLUE);
+        }
+
+        for (Country country : BusinessRegion.APAC.getCountries()) {
+            country.setColor(Color.LIGHTSALMON);
+        }
+
+
         world = WorldBuilder.create()
                             .resolution(Resolution.HI_RES)
                             //.backgroundColor(Color.web("#4aa9d7"))
@@ -87,9 +102,12 @@ public class Main extends Application {
                                 System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
                                 System.out.println(Country.valueOf(countryPath.getName()).getValue() + " million people");
                             })
+                            .region(EU)
                             .zoomEnabled(true)
                             .selectionEnabled(true)
                             .build();
+
+        world.setRegion(BusinessRegion.APAC);
 
         // Population per country in 2016
         Map<String, Double> data = new HashMap<>();
