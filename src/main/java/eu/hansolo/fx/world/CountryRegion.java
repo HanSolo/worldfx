@@ -16,6 +16,8 @@
 
 package eu.hansolo.fx.world;
 
+import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,4 +42,8 @@ public class CountryRegion implements CRegion {
     @Override public String name() { return name; }
 
     @Override public List<Country> getCountries() { return countries; }
+
+    @Override public void setColor(final Color COLOR) {
+        for (Country country : getCountries()) { country.setColor(COLOR); }
+    }
 }

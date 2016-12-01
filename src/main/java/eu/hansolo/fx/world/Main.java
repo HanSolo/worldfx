@@ -46,17 +46,18 @@ import static eu.hansolo.fx.world.Country.PL;
  * Time: 13:37
  */
 public class Main extends Application {
-    private World world;
+    private static final Random RND = new Random();
+    private              World  world;
+
 
     @Override public void init() {
         CountryRegion EU = new CountryRegion("EU", BE, GR, LT, PT, BG, ES, LU, RO, CZ, FR, HU, SI, DK, HR, MT, SK, DE, IT, NL, FI, EE, CY, AT, SE, IE, LV, PL, GB);
+        //EU.setColor(Color.LIGHTBLUE);
         for (Country country : EU.getCountries()) {
-            country.setColor(Color.LIGHTBLUE);
+            country.setColor(Color.rgb(RND.nextInt(127) + 100, 0, RND.nextInt(127) + 128));
         }
 
-        for (Country country : BusinessRegion.APAC.getCountries()) {
-            country.setColor(Color.LIGHTSALMON);
-        }
+        BusinessRegion.APAC.setColor(Color.LIGHTSALMON);
 
 
         world = WorldBuilder.create()

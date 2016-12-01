@@ -16,6 +16,8 @@
 
 package eu.hansolo.fx.world;
 
+import javafx.scene.paint.Color;
+
 import java.util.ArrayList;
 import java.util.List;
 import static eu.hansolo.fx.world.Country.*;
@@ -47,4 +49,8 @@ public enum BusinessRegion implements CRegion {
 
     // ******************** Methods *******************************************
     @Override public List<Country> getCountries() { return countries; }
+
+    @Override public void setColor(final Color COLOR) {
+        for (Country country : getCountries()) { country.setColor(COLOR); }
+    }
 }
