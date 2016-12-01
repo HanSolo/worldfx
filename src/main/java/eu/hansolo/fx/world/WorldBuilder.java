@@ -134,11 +134,6 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
         return (B)this;
     }
 
-    public final B region(final CRegion REGION) {
-        properties.put("region", new SimpleObjectProperty(REGION));
-        return (B)this;
-    }
-
     public final B prefSize(final double WIDTH, final double HEIGHT) {
         properties.put("prefSize", new SimpleObjectProperty<>(new Dimension2D(WIDTH, HEIGHT)));
         return (B)this;
@@ -282,8 +277,6 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
                 CONTROL.showLocations(((BooleanProperty) properties.get(key)).get());
             } else if ("locationIconCode".equals(key)) {
                 CONTROL.setLocationIconCode(((ObjectProperty<Ikon>) properties.get(key)).get());
-            } else if ("region".equals(key)) {
-                CONTROL.setRegion(((ObjectProperty<CRegion>) properties.get(key)).get());
             }
         }
         return CONTROL;

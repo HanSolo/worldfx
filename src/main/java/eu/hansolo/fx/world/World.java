@@ -52,6 +52,7 @@ import javafx.scene.layout.CornerRadii;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
@@ -425,96 +426,72 @@ public class World extends Region {
         }
     }
 
-    public void setRegion(final CRegion REGION) {
-        for (Country country : REGION.getCountries()) {
-            for (CountryPath countryPath : getCountryPaths().get(country.getName())) {
-                countryPath.setFill(country.getColor());
-            }
-        }
-    }
-
-    public void setRegions(final CRegion... REGIONS) {
-        for (CRegion region : REGIONS) { setRegion(region); }
-    }
-
     public void zoomToCountry(final Country COUNTRY) {
         if (!isZoomEnabled()) return;
-        group.setTranslateX(0);
-        group.setTranslateY(0);
         if (null != getSelectedCountry()) {
             setCountryFillAndStroke(getSelectedCountry(), getFillColor(), getStrokeColor());
         }
-        double upperLeftX  = PREFERRED_WIDTH;
-        double upperLeftY  = PREFERRED_HEIGHT;
-        double lowerRightX = 0;
-        double lowerRightY = 0;
-        List<CountryPath> paths = countryPaths.get(COUNTRY.getName());
-        for (int i = 0 ; i < paths.size() ; i++) {
-            CountryPath path   = paths.get(i);
-            Bounds      bounds = path.getLayoutBounds();
-            upperLeftX  = Math.min(bounds.getMinX(), upperLeftX);
-            upperLeftY  = Math.min(bounds.getMinY(), upperLeftY);
-            lowerRightX = Math.max(bounds.getMaxX(), lowerRightX);
-            lowerRightY = Math.max(bounds.getMaxY(), lowerRightY);
-        }
-        double countryWidth   = lowerRightX - upperLeftX;
-        double countryHeight  = lowerRightY - upperLeftY;
-        double countryCenterX = upperLeftX + countryWidth * 0.5;
-        double countryCenterY = upperLeftY + countryHeight * 0.5;
-        Orientation orientation = countryWidth < countryHeight ? Orientation.VERTICAL : Orientation.HORIZONTAL;
-        double sf = 1.0;
-        switch(orientation) {
-            case VERTICAL:
-                sf = clamp(1.0, 10.0, 1 / (countryHeight / height));
-                break;
-            case HORIZONTAL:
-                sf = clamp(1.0, 10.0, 1 / (countryWidth / width));
-                break;
-        }
-        setScaleFactor(sf);
-        group.setTranslateX(width * 0.5 - (countryCenterX));
-        group.setTranslateY(height * 0.5 - (countryCenterY));
+        zoomToArea(getBounds(COUNTRY));
     }
 
     public void zoomToRegion(final CRegion REGION) {
         if (!isZoomEnabled()) return;
-        group.setTranslateX(0);
-        group.setTranslateY(0);
         if (null != getSelectedCountry()) {
             setCountryFillAndStroke(getSelectedCountry(), getFillColor(), getStrokeColor());
         }
+        zoomToArea(getBounds(REGION.getCountries()));
+    }
+
+    private double[] getBounds(final Country... COUNTRIES) { return getBounds(Arrays.asList(COUNTRIES)); }
+    private double[] getBounds(final List<Country> COUNTRIES) {
         double upperLeftX  = PREFERRED_WIDTH;
         double upperLeftY  = PREFERRED_HEIGHT;
         double lowerRightX = 0;
         double lowerRightY = 0;
-        for (Country country : REGION.getCountries()) {
+        for (Country country : COUNTRIES) {
             List<CountryPath> paths = countryPaths.get(country.getName());
             for (int i = 0; i < paths.size(); i++) {
                 CountryPath path   = paths.get(i);
                 Bounds      bounds = path.getLayoutBounds();
-                upperLeftX = Math.min(bounds.getMinX(), upperLeftX);
-                upperLeftY = Math.min(bounds.getMinY(), upperLeftY);
+                upperLeftX  = Math.min(bounds.getMinX(), upperLeftX);
+                upperLeftY  = Math.min(bounds.getMinY(), upperLeftY);
                 lowerRightX = Math.max(bounds.getMaxX(), lowerRightX);
                 lowerRightY = Math.max(bounds.getMaxY(), lowerRightY);
             }
         }
-        double regionWidth   = lowerRightX - upperLeftX;
-        double regionHeight  = lowerRightY - upperLeftY;
-        double regionCenterX = upperLeftX + regionWidth * 0.5;
-        double regionCenterY = upperLeftY + regionHeight * 0.5;
-        Orientation orientation = regionWidth < regionHeight ? Orientation.VERTICAL : Orientation.HORIZONTAL;
+        return new double[]{ upperLeftX, upperLeftY, lowerRightX, lowerRightY };
+    }
+
+    private void zoomToArea(final double[] BOUNDS) {
+        group.setTranslateX(0);
+        group.setTranslateY(0);
+        double      areaWidth   = BOUNDS[2] - BOUNDS[0];
+        double      areaHeight  = BOUNDS[3] - BOUNDS[1];
+        double      areaCenterX = BOUNDS[0] + areaWidth * 0.5;
+        double      areaCenterY = BOUNDS[1] + areaHeight * 0.5;
+        Orientation orientation = areaWidth < areaHeight ? Orientation.VERTICAL : Orientation.HORIZONTAL;
         double sf = 1.0;
         switch(orientation) {
             case VERTICAL:
-                sf = clamp(1.0, 10.0, 1 / (regionHeight / height));
+                sf = clamp(1.0, 10.0, 1 / (areaHeight / height));
                 break;
             case HORIZONTAL:
-                sf = clamp(1.0, 10.0, 1 / (regionWidth / width));
+                sf = clamp(1.0, 10.0, 1 / (areaWidth / width));
                 break;
         }
+
+
+        Rectangle bounds = new Rectangle(BOUNDS[0], BOUNDS[1], BOUNDS[2], BOUNDS[3]);
+        bounds.setFill(Color.TRANSPARENT);
+        bounds.setStroke(Color.RED);
+        bounds.setStrokeWidth(0.5);
+        bounds.setMouseTransparent(true);
+        group.getChildren().add(bounds);
+
+
         setScaleFactor(sf);
-        group.setTranslateX(width * 0.5 - (regionCenterX));
-        group.setTranslateY(height * 0.5 - (regionCenterY));
+        group.setTranslateX(width * 0.5 - (areaCenterX));
+        group.setTranslateY(height * 0.5 - (areaCenterY));
     }
 
     private void setPivot(final double X, final double Y) {

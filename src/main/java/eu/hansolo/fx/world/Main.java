@@ -54,12 +54,12 @@ public class Main extends Application {
     @Override public void init() {
         europeanUnion = new CountryRegion("EU", BE, GR, LT, PT, BG, ES, LU, RO, CZ, FR, HU, SI, DK, HR, MT, SK, DE, IT, NL, FI, EE, CY, AT, SE, IE, LV, PL, GB);
         //europeanUnion.setColor(Color.LIGHTBLUE);
-        for (Country country : europeanUnion.getCountries()) {
-            country.setColor(Color.rgb(RND.nextInt(127) + 100, 0, RND.nextInt(127) + 128));
-        }
+        //for (Country country : europeanUnion.getCountries()) {
+        //    country.setColor(Color.rgb(RND.nextInt(127) + 100, 0, RND.nextInt(127) + 128));
+        //}
 
-        BusinessRegion.APAC.setColor(Color.LIGHTSALMON);
-
+        //BusinessRegion.APAC.setColor(Color.LIGHTSALMON);
+        BusinessRegion.DACH.setColor(Color.MAGENTA);
 
         world = WorldBuilder.create()
                             .resolution(Resolution.HI_RES)
@@ -104,12 +104,9 @@ public class Main extends Application {
                                 System.out.println(locale.getDisplayCountry() + " (" + locale.getISO3Country() + ")");
                                 System.out.println(Country.valueOf(countryPath.getName()).getValue() + " million people");
                             })
-                            .region(europeanUnion)
                             .zoomEnabled(true)
                             .selectionEnabled(true)
                             .build();
-
-        world.setRegion(BusinessRegion.APAC);
 
         // Population per country in 2016
         Map<String, Double> data = new HashMap<>();
@@ -339,7 +336,8 @@ public class Main extends Application {
         stage.show();
 
         //world.zoomToCountry(Country.DE);
-        world.zoomToRegion(europeanUnion);
+        //world.zoomToRegion(europeanUnion);
+        world.zoomToRegion(BusinessRegion.DACH);
     }
 
     @Override public void stop() {
