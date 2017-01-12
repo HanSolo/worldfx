@@ -108,6 +108,7 @@ public class World extends Region {
     private        final StyleableProperty<Color>        selectedColor;
     private static final CssMetaData<World, Color>       LOCATION_COLOR = FACTORY.createColorCssMetaData("-location-color", s -> s.locationColor, Color.web("#ff0000"), false);
     private        final StyleableProperty<Color>        locationColor;
+    private              BooleanProperty                 hoverEnabled;
     private              BooleanProperty                 selectionEnabled;
     private              ObjectProperty<Country>         selectedCountry;
     private              BooleanProperty                 zoomEnabled;
@@ -185,6 +186,11 @@ public class World extends Region {
             @Override public Object getBean() { return World.this; }
             @Override public String getName() { return "locationColor"; }
             @Override public CssMetaData<? extends Styleable, Color> getCssMetaData() { return LOCATION_COLOR; }
+        };
+        hoverEnabled         = new BooleanPropertyBase(true) {
+            @Override protected void invalidated() {}
+            @Override public Object getBean() { return World.this; }
+            @Override public String getName() { return "hoverEnabled"; }
         };
         selectionEnabled     = new BooleanPropertyBase(false) {
             @Override protected void invalidated() {}
@@ -355,6 +361,10 @@ public class World extends Region {
     public void setLocationColor(final Color COLOR) { locationColor.setValue(COLOR); }
     public ObjectProperty<Color> locationColorProperty() { return (ObjectProperty<Color>) locationColor; }
 
+    public boolean isHoverEnabled() { return hoverEnabled.get(); }
+    public void setHoverEnabled(final boolean ENABLED) { hoverEnabled.set(ENABLED); }
+    public BooleanProperty hoverEnabledProperty() { return hoverEnabled; }
+
     public boolean isSelectionEnabled() { return selectionEnabled.get(); }
     public void setSelectionEnabled(final boolean ENABLED) { selectionEnabled.set(ENABLED); }
     public BooleanProperty selectionEnabledProperty() { return selectionEnabled; }
@@ -442,6 +452,12 @@ public class World extends Region {
         zoomToArea(getBounds(REGION.getCountries()));
     }
 
+    public static double[] latLonToXY(final double LATITUDE, final double LONGITUDE) {
+        double x = (LONGITUDE + 180) * (PREFERRED_WIDTH / 360) + MAP_OFFSET_X;
+        double y = (PREFERRED_HEIGHT / 2) - (PREFERRED_WIDTH * (Math.log(Math.tan((Math.PI / 4) + (Math.toRadians(LATITUDE) / 2)))) / (2 * Math.PI)) + MAP_OFFSET_Y;
+        return new double[]{ x, y };
+    }
+
     private double[] getBounds(final Country... COUNTRIES) { return getBounds(Arrays.asList(COUNTRIES)); }
     private double[] getBounds(final List<Country> COUNTRIES) {
         double upperLeftX  = PREFERRED_WIDTH;
@@ -503,8 +519,10 @@ public class World extends Region {
 
         final EventType TYPE = EVENT.getEventType();
         if (MOUSE_ENTERED == TYPE) {
+            if (isHoverEnabled()) {
             Color color = isSelectionEnabled() && COUNTRY.equals(getSelectedCountry()) ? getSelectedColor() : getHoverColor();
             for (SVGPath path : PATHS) { path.setFill(color); }
+            }
         } else if (MOUSE_PRESSED == TYPE) {
             if (isSelectionEnabled()) {
                 Color color;
@@ -516,7 +534,9 @@ public class World extends Region {
                 }
                 for (SVGPath path : countryPaths.get(getSelectedCountry().getName())) { path.setFill(color); }
             } else {
+                if (isHoverEnabled()) {
                 for (SVGPath path : PATHS) { path.setFill(getPressedColor()); }
+            }
             }
         } else if (MOUSE_RELEASED == TYPE) {
             Color color;
@@ -532,12 +552,16 @@ public class World extends Region {
             } else {
                 color = getHoverColor();
             }
+            if (isHoverEnabled()) {
             for (SVGPath path : PATHS) { path.setFill(color); }
+            }
         } else if (MOUSE_EXITED == TYPE) {
+            if (isHoverEnabled()) {
             Color color = isSelectionEnabled() && COUNTRY.equals(getSelectedCountry()) ? getSelectedColor() : getFillColor();
             for (SVGPath path : PATHS) {
                 path.setFill(null == COUNTRY.getColor() || COUNTRY == getSelectedCountry() ? color : COUNTRY.getColor());
             }
+        }
         }
 
         if (null != HANDLER) HANDLER.handle(EVENT);

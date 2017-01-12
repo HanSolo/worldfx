@@ -89,6 +89,11 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
         return (B)this;
     }
 
+    public final B hoverEnabled(final boolean ENABLED) {
+        properties.put("hoverEnabled", new SimpleBooleanProperty(ENABLED));
+        return (B)this;
+    }
+
     public final B selectionEnabled(final boolean ENABLED) {
         properties.put("selectionEnabled", new SimpleBooleanProperty(ENABLED));
         return (B)this;
@@ -259,6 +264,8 @@ public class WorldBuilder<B extends WorldBuilder<B>> {
                 CONTROL.setSelectedColor(((ObjectProperty<Color>) properties.get(key)).get());
             } else if ("locationColor".equals(key)) {
                 CONTROL.setLocationColor(((ObjectProperty<Color>) properties.get(key)).get());
+            } else if ("hoverEnabled".equals(key)) {
+                CONTROL.setHoverEnabled(((BooleanProperty) properties.get(key)).get());
             } else if ("selectionEnabled".equals(key)) {
                 CONTROL.setSelectionEnabled(((BooleanProperty) properties.get(key)).get());
             } else if ("zoomEnabled".equals(key)) {
