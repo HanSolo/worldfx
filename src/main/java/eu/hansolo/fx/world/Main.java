@@ -58,6 +58,8 @@ public class Main extends Application {
         //    country.setColor(Color.rgb(RND.nextInt(127) + 100, 0, RND.nextInt(127) + 128));
         //}
 
+        CountryRegion myRegion = new CountryRegion("BENELUX", BE, NL, LU);
+
         BusinessRegion.EU.setColor(Color.rgb(124, 208, 255));
         //BusinessRegion.APAC.setColor(Color.LIGHTSALMON);
 
